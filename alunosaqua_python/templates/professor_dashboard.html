@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Professor - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1>
+            </div>
+            <nav>
+                <span>Bem-vindo(a), Prof. {{ session['username'] }}!</span>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2>Gerenciamento de Alunos</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            <div class="card full-width">
+                <h3>Lista de Alunos</h3>
+                {% if disciplina_professor %}
+                    <p>Você gerencia alunos da disciplina de **{{ disciplina_professor }}**.</p>
+                {% else %}
+                    <p>Você gerencia alunos de todas as disciplinas (perfil geral).</p>
+                {% endif %}
+                
+                {% if alunos %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Matrícula</th>
+                                <th>Nome</th>
+                                <th>Turma</th>
+                                <th>Faltas (%)</th>
+                                <th>Status Faltas</th>
+                                {% if disciplina_professor %}
+                                    <th>{{ disciplina_professor }} (Soma)</th>
+                                    <th>Status {{ disciplina_professor }}</th>
+                                {% else %}
+                                    <th>Status Geral Notas</th>
+                                {% endif %}
+                                <th>Status Final</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for aluno_data in alunos %}
+                                <tr>
+                                    <td>{{ aluno_data.matricula_aluno }}</td>
+                                    <td>{{ aluno_data.nome }}</td>
+                                    <td>{{ aluno_data.turma if aluno_data.turma else 'N/A' }}</td>
+                                    <td>{{ aluno_data.faltas }} ({{ aluno_data.porcentagem_faltas }}%)</td>
+                                    <td class="status-{{ 'reprovado' if 'REPROVADO' in aluno_data.status_faltas else 'aprovado' }}">{{ aluno_data.status_faltas }}</td>
+                                    {% if disciplina_professor %}
+                                        <td>{{ aluno_data.nota_disciplina_professor_soma if aluno_data.nota_disciplina_professor_soma != 'N/A' else 'N/A' }}</td>
+                                        <td class="status-{{ 'reprovado' if 'REPROVADO' in aluno_data.status_disciplina_professor else 'aprovado' }}">{{ aluno_data.status_disciplina_professor }}</td>
+                                    {% else %}
+                                        <td class="status-{{ 'reprovado' if 'REPROVADO' in aluno_data.status_geral_notas else 'aprovado' }}">{{ aluno_data.status_geral_notas }}</td>
+                                    {% endif %}
+                                    <td class="final-status status-{{ 'reprovado' if 'REPROVADO' in aluno_data.status_final_aluno else 'aprovado' }}">{{ aluno_data.status_final_aluno }}</td>
+                                    <td>
+                                        <a href="{{ url_for('professor_atualizar_dados', matricula=aluno_data.matricula_aluno) }}" class="btn-sm">Atualizar</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>Nenhum aluno encontrado para a sua disciplina.</p>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>

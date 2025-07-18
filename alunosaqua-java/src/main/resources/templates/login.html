@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AlunoSaqua</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img th:src="@{/images/logo.png}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1>
+            </div>
+            <nav>
+                <a th:href="@{/}">Início</a>
+                <a th:href="@{/register}">Cadastre-se (Alunos)</a>
+            </nav>
+        </div>
+    </header>
+    <main class="form-container">
+        <div class="container">
+            <div class="logo-ava">
+                <img th:src="@{/images/school_logo.png}" alt="Logo da Escola"> 
+                <h2>Ambiente Virtual <br> de Aprendizagem</h2>
+            </div>
+            
+            <div th:if="${message}" th:classappend="|flashes ${messageType}|">
+                <p th:text="${message}"></p>
+            </div>
+            
+            <form th:action="@{/login}" method="POST">
+                <div class="form-group">
+                    <label for="user_type">Tipo de Usuário:</label>
+                    <select id="user_type" name="user_type" required>
+                        <option value="aluno">Aluno</option>
+                        <option value="pais">Pais</option>
+                        <option value="professor">Professor</option>
+                        <option value="psicopedagogo">Psicopedagogo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="username">Usuário (Matrícula para Aluno):</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <p><a href="#" class="link-button">Mostrar Senha</a></p> 
+
+                <button type="submit" class="btn-primary">Acessar</button>
+            </form>
+            <p><a href="#" class="link-button">Perdeu a senha?</a></p>
+            <p>Ainda não tem cadastro? <a th:href="@{/register}">Cadastre-se aqui como aluno</a>.</p>
+            <hr>
+            <p><a href="#" class="link-button">WhatsApp OSED</a></p>
+            <p><a href="#" class="link-button">Tutorial</a></p>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>

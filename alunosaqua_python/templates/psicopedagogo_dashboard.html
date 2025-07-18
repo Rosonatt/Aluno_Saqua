@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Psicopedagogo - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1>
+            </div>
+            <nav>
+                <span>Bem-vindo(a), {{ session['username'] }}!</span>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2>Denúncias Recebidas</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            {% for urgencia_level in ['alta', 'média', 'baixa'] %}
+                <div class="card full-width">
+                    <h3>Urgência: {{ urgencia_level.capitalize() }}</h3>
+                    {% if denuncias[urgencia_level] %}
+                        <ul>
+                            {% for denuncia in denuncias[urgencia_level] %}
+                                {% if denuncia.status == 'aberta' %}
+                                    <li>
+                                        <strong>Aluno:</strong> {{ denuncia.aluno_nome }} (Matrícula: {{ denuncia.aluno_matricula }})<br>
+                                        <strong>Descrição:</strong> {{ denuncia.descricao | truncate(100, True) }}...<br>
+                                        <strong>Notas (algumas):</strong>
+                                        {% if denuncia.aluno_notas_calculadas %}
+                                            {% for disciplina, info in denuncia.aluno_notas_calculadas.items() %}
+                                                {{ disciplina }}: {{ info.soma }} ({{ info.status }}){% if not loop.last %}, {% endif %}
+                                                {% if loop.index % 3 == 0 and not loop.last %}<br>{% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                        <a href="{{ url_for('denuncia_detalhe', denuncia_id=denuncia.id) }}" class="btn-sm">Ver Detalhes</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Nenhuma denúncia de {{ urgencia_level }} urgência no momento.</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Aluno - AlunoSaqua</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img th:src="@{/images/logo.png}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1>
+            </div>
+            <nav>
+                <span th:text="|Bem-vindo(a), ${aluno.nome}!|"></span>
+                <a th:href="@{/logout}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2>Minhas Informações Escolares</h2>
+            <div th:if="${message}" th:classappend="|flashes ${messageType}|">
+                <p th:text="${message}"></p>
+            </div>
+
+            <div class="card full-width">
+                <h3>Frequência</h3>
+                <p>Total de faltas: <strong th:text="${aluno.faltas}"></strong></p>
+                <p>Porcentagem de faltas: <strong th:text="${dadosCalculados.porcentagemFaltas} + '%'"></strong></p>
+                <p th:classappend="|status-${#strings.toLowerCase(dadosCalculados.statusFaltas.split(' ')[0])}|">
+                    Status por Faltas: <strong th:text="${dadosCalculados.statusFaltas}"></strong>
+                </p>
+                <div class="graph-placeholder">
+                    <canvas id="faltasChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card full-width">
+                <h3>Notas por Matéria</h3>
+                <div th:if="${dadosCalculados.mediasMaterias}">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Disciplina</th>
+                                <th>Nota 1</th>
+                                <th>Nota 2</th>
+                                <th>Soma (Total <span th:text="${NOTA_MINIMA_APROVACAO_MATERIA}"></span> p/ aprovar)</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="disciplina : ${MATERIAS_ENSINO_FUNDAMENTAL}">
+                                <td th:text="${disciplina}"></td>
+                                <td th:with="info=${dadosCalculados.mediasMaterias.get(disciplina)}">
+                                    <span th:text="${info != null ? info.getNota1() : 'N/A'}"></span>
+                                </td>
+                                <td th:with="info=${dadosCalculados.mediasMaterias.get(disciplina)}">
+                                    <span th:text="${info != null ? info.getNota2() : 'N/A'}"></span>
+                                </td>
+                                <td th:with="info=${dadosCalculados.mediasMaterias.get(disciplina)}">
+                                    <span th:text="${info != null ? info.getSoma() : 'N/A'}"></span>
+                                </td>
+                                <td th:with="info=${dadosCalculados.mediasMaterias.get(disciplina)}"
+                                    th:classappend="|status-${info != null ? #strings.toLowerCase(info.getStatus()) : 'aprovado'}|">
+                                    <span th:text="${info != null ? info.getStatus() : 'N/A'}"></span>
+                                </td>
+                            </tr>
+                            <tr th:each="entry : ${dadosCalculados.mediasMaterias.entrySet()}"
+                                th:if="${!MATERIAS_ENSINO_FUNDAMENTAL.contains(entry.key)}">
+                                <td th:text="${entry.key} + ' (Extra)'"></td>
+                                <td th:text="${entry.value.getNota1()}"></td>
+                                <td th:text="${entry.value.getNota2()}"></td>
+                                <td th:text="${entry.value.getSoma()}"></td>
+                                <td th:classappend="|status-${#strings.toLowerCase(entry.value.getStatus())}|" th:text="${entry.value.getStatus()}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p th:classappend="|overall-status status-${#strings.toLowerCase(dadosCalculados.statusGeralNotas.split(' ')[0])}|">
+                        Status Geral de Notas: <strong th:text="${dadosCalculados.statusGeralNotas}"></strong>
+                    </p>
+                    <div th:if="${!dadosCalculados.materiasReprovadas.isEmpty()}">
+                        <p class="reprovadas-list">Matérias reprovadas: <strong th:text="${#strings.arrayJoin(dadosCalculados.materiasReprovadas, ', ')}"></strong></p>
+                    </div>
+                    <div th:unless="${!dadosCalculados.materiasReprovadas.isEmpty()}">
+                        <p>Nenhuma matéria reprovada por nota.</p>
+                    </div>
+                    
+                    <div class="graph-placeholder">
+                        <canvas id="notasChart"></canvas>
+                    </div>
+                </div>
+                <div th:unless="${dadosCalculados.mediasMaterias}">
+                    <p>Nenhuma nota cadastrada ainda.</p>
+                </div>
+            </div>
+
+            <div class="card full-width">
+                <h3>Status Final do Aluno</h3>
+                <p th:classappend="|final-status status-${#strings.toLowerCase(dadosCalculados.statusFinalAluno.split(' ')[0])}|">
+                    <strong th:text="${dadosCalculados.statusFinalAluno}"></strong>
+                </p>
+                <a th:href="@{/aluno/denunciar}" class="btn-secondary">Fazer Denúncia Anônima</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+    <script th:inline="javascript">
+        // Os dados JavaScript precisam ser expostos corretamente pelo Thymeleaf
+        const faltasGraficoData = [[${dadosCalculados.faltasGrafico}]];
+        const notasGraficoData = [[${dadosCalculados.notasGrafico}]];
+        const notaMinimaAprovacaoMateria = [[${NOTA_MINIMA_APROVACAO_MATERIA}]]; // Acessar a variável do modelo
+
+        // Gráfico de Faltas
+        const faltasCtx = document.getElementById('faltasChart').getContext('2d');
+        new Chart(faltasCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Presente', 'Faltas'],
+                datasets: [{
+                    data: [faltasGraficoData.presente, faltasGraficoData.ausente],
+                    backgroundColor: ['#28a745', '#dc3545'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#333'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed) {
+                                    label += context.parsed + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de Notas
+        const notasCtx = document.getElementById('notasChart').getContext('2d');
+        new Chart(notasCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Disciplinas Aprovadas', 'Disciplinas Reprovadas'],
+                datasets: [{
+                    data: [notasGraficoData.aprovadas, notasGraficoData.reprovadas],
+                    backgroundColor: ['#17a2b8', '#ffc107'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#333'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed) {
+                                    label += context.parsed + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Denúncia - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1>
+            </div>
+            <nav>
+                <span>Bem-vindo(a), {{ session['username'] }}!</span>
+                <a href="{{ url_for('psicopedagogo_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2>Detalhes da Denúncia</h2>
+            <div class="card full-width">
+                <p><strong>Aluno:</strong> {{ aluno_nome }} (Matrícula: {{ denuncia.aluno_matricula }})</p>
+                <p><strong>ID da Denúncia:</strong> {{ denuncia_id }}</p>
+                <p><strong>Descrição:</strong> {{ denuncia.descricao }}</p>
+                <p><strong>Urgência:</strong> {{ denuncia.urgencia.capitalize() }}</p>
+                <p><strong>Status:</strong> {{ denuncia.status.capitalize() }}</p>
+                
+                <h3>Notas do Aluno:</h3>
+                {% if aluno_notas_calculadas %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Disciplina</th>
+                                <th>Nota 1</th>
+                                <th>Nota 2</th>
+                                <th>Soma (Total {{ config.NOTA_MINIMA_APROVACAO_MATERIA }} p/ aprovar)</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for disciplina in config.MATERIAS_ENSINO_FUNDAMENTAL %} {# Exibir todas as matérias padrão #}
+                                {% set info = aluno_notas_calculadas.get(disciplina) %}
+                                <tr>
+                                    <td>{{ disciplina }}</td>
+                                    <td>{{ info.nota1 if info and info.nota1 != 'N/A' else 'N/A' }}</td>
+                                    <td>{{ info.nota2 if info and info.nota2 != 'N/A' else 'N/A' }}</td>
+                                    <td>{{ info.soma if info and info.soma != 'N/A' else 'N/A' }}</td>
+                                    <td class="status-{{ 'reprovado' if info and 'REPROVADO' in info.status else 'aprovado' }}">{{ info.status if info else 'N/A' }}</td>
+                                </tr>
+                            {% endfor %}
+                            {% for disciplina, info in aluno_notas_calculadas.items() %} {# Exibir matérias extras #}
+                                {% if disciplina not in config.MATERIAS_ENSINO_FUNDAMENTAL %}
+                                    <tr>
+                                        <td>{{ disciplina }} (Extra)</td>
+                                        <td>{{ info.nota1 }}</td>
+                                        <td>{{ info.nota2 }}</td>
+                                        <td>{{ info.soma }}</td>
+                                        <td class="status-{{ 'reprovado' if 'REPROVADO' in info.status else 'aprovado' }}">{{ info.status }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>Nenhuma nota cadastrada para este aluno.</p>
+                {% endif %}
+
+                {% if denuncia.status == 'aberta' %}
+                    <form action="{{ url_for('fechar_denuncia', denuncia_id=denuncia_id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-primary">Marcar como Fechada</button>
+                    </form>
+                {% endif %}
+                <a href="{{ url_for('psicopedagogo_dashboard') }}" class="btn-secondary">Voltar para Denúncias</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>

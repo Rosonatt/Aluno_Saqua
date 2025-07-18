@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Dados do Aluno - AlunoSaqua</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+    <div class="container">
+        <div class="logo">
+            <img th:src="@{/images/logo.png}" alt="AlunoSaqua Logo">
+            <h1>AlunoSaqua</h1>
+        </div>
+        <nav>
+            <span th:text="|Bem-vindo(a), Prof. ${session.username}!|"></span>
+            <a th:href="@{/professor/dashboard}">Dashboard</a>
+            <a th:href="@{/logout}">Sair</a>
+        </nav>
+    </div>
+</header>
+<main class="form-container">
+    <div class="container">
+        <h2>Atualizar Dados do Aluno: <span th:text="${aluno.nome}"></span> (Matrícula: <span th:text="${aluno.matricula}"></span>)</h2>
+        <p th:if="${disciplinaProfessor}">Você está atualizando a disciplina de <strong th:text="${disciplinaProfessor}"></strong>.</p>
+        <p th:unless="${disciplinaProfessor}">Você pode atualizar dados de todas as disciplinas (perfil geral).</p>
+
+        <form th:action="@{/professor/atualizar_dados/{matricula}(matricula=${aluno.matricula})}" method="POST">
+            <div class="form-group">
+                <label for="faltas">Faltas:</label>
+                <input type="number" id="faltas" name="faltas" th:value="${aluno.faltas}" min="0" required>
+            </div>
+            <h3>Notas (Total <span th:text="${NOTA_MINIMA_APROVACAO_MATERIA}"></span> para aprovação):</h3>
+
+            <div th:if="${disciplinaProfessor}"> {# Professor com disciplina específica #}
+                <div th:with="notasList=${aluno.notas.get(disciplinaProfessor)}">
+                    <div class="form-group">
+                        <label th:text="${disciplinaProfessor} + ':'"></label>
+                        <input type="number" th:name="|nota_${disciplinaProfessor}_1|" th:value="${notasList != null and !notasList.isEmpty() ? #numbers.formatDecimal(notasList[0], 1, 1) : ''}" min="0" max="10" step="0.1" placeholder="Nota 1">
+                        <input type="number" th:name="|nota_${disciplinaProfessor}_2|" th:value="${notasList != null and notasList.size() > 1 ? #numbers.formatDecimal(notasList[1], 1, 1) : ''}" min="0" max="10" step="0.1" placeholder="Nota 2">
+                    </div>
+                </div>
+            </div>
+            <div th:unless="${disciplinaProfessor}"> {# Professor sem disciplina específica (geral) #}
+                <div th:each="disciplina_nome : ${MATERIAS_ENSINO_FUNDAMENTAL}">
+                    <div th:with="notasList=${aluno.notas.get(disciplina_nome)}">
+                        <div class="form-group">
+                            <label th:text="${disciplina_nome} + ':'"></label>
+                            <input type="number" th:name="|nota_${disciplina_nome}_1|" th:value="${notasList != null and !notasList.isEmpty() ? #numbers.formatDecimal(notasList[0], 1, 1) : ''}" min="0" max="10" step="0.1" placeholder="Nota 1">
+                            <input type="number" th:name="|nota_${disciplina_nome}_2|" th:value="${notasList != null and notasList.size() > 1 ? #numbers.formatDecimal(notasList[1], 1, 1) : ''}" min="0" max="10" step="0.1" placeholder="Nota 2">
+                        </div>
+                    </div>
+                </div>
+                {# Matérias extras que não estão na lista padrão #}
+                <div th:each="entry : ${aluno.notas.entrySet()}" th:if="${!MATERIAS_ENSINO_FUNDAMENTAL.contains(entry.key)}">
+                    <div class="form-group">
+                        <label th:text="${entry.key} + ' (Extra):'"></label>
+                        <input type="number" th:name="|nota_${entry.key}_1|" th:value="${entry.value != null and !entry.value.isEmpty() ? #numbers.formatDecimal(entry.value[0], 1, 1) : ''}" min="0" max="10" step="0.1" placeholder="Nota 1">
+                        <input type="number" th:name="|nota_${entry.key}_2|" th:value="${entry.value != null and entry.value.size() > 1 ? #numbers.formatDecimal(entry.value[1], 1, 1) : ''}" min="0" max="10" step="0.1" placeholder="Nota 2">
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <h3>Adicionar Nova Disciplina:</h3>
+            <div class="form-group">
+                <label for="nova_disciplina_nome">Nome da Nova Disciplina:</label>
+                <input type="text" id="nova_disciplina_nome" name="nova_disciplina_nome" placeholder="Ex: Educação Física Avançada">
+            </div>
+            <div class="form-group">
+                <label for="nova_disciplina_nota1">Nota 1 da Nova Disciplina (0-10):</label>
+                <input type="number" id="nova_disciplina_nota1" name="nova_disciplina_nota1" min="0" max="10" step="0.1" placeholder="Ex: 8.5">
+            </div>
+            <div class="form-group">
+                <label for="nova_disciplina_nota2">Nota 2 da Nova Disciplina (0-10):</label>
+                <input type="number" id="nova_disciplina_nota2" name="nova_disciplina_nota2" min="0" max="10" step="0.1" placeholder="Ex: 7.0">
+            </div>
+            <button type="submit" class="btn-primary">Salvar Alterações</button>
+        </form>
+        <a th:href="@{/professor/dashboard}" class="btn-secondary">Voltar</a>
+    </div>
+</main>
+<footer>
+    <div class="container">
+        <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+    </div>
+</footer>
+</body>
+</html>

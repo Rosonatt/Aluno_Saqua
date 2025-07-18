@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Denunciar - AlunoSaqua</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img th:src="@{/images/logo.png}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1>
+            </div>
+            <nav>
+                <span th:text="|Bem-vindo(a), ${session.username}!|"></span>
+                <a th:href="@{/aluno/dashboard}">Dashboard</a>
+                <a th:href="@{/logout}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="form-container">
+        <div class="container">
+            <h2>Fazer Denúncia Anônima</h2>
+            <div th:if="${message}" th:classappend="|flashes ${messageType}|">
+                <p th:text="${message}"></p>
+            </div>
+            <form th:action="@{/aluno/denunciar}" method="POST">
+                <div class="form-group">
+                    <label for="descricao">Descreva a situação:</label>
+                    <textarea id="descricao" name="descricao" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="urgencia">Grau de Urgência:</label>
+                    <select id="urgencia" name="urgencia" required>
+                        <option value="baixa">Baixa</option>
+                        <option value="média">Média</option>
+                        <option value="alta">Alta</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Enviar Denúncia</button>
+            </form>
+            <p>Sua denúncia será tratada com a máxima discrição e anonimato.</p>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>

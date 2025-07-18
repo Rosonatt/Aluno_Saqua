@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard dos Pais - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1>
+            </div>
+            <nav>
+                <span>Bem-vindo(a), {{ session['username'] }}!</span>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2>Informações do(a) seu(sua) Filho(a): {{ filho.nome }}</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            {% if filho %}
+                <div class="card full-width">
+                    <h3>Frequência Escolar</h3>
+                    <p>Total de faltas: **{{ filho.faltas }}**</p>
+                    <p>Porcentagem de faltas: **{{ dados_calculados.porcentagem_faltas }}%**</p>
+                    <p class="status-{{ 'reprovado' if 'REPROVADO' in dados_calculados.status_faltas else 'aprovado' }}">
+                        Status por Faltas: **{{ dados_calculados.status_faltas }}**
+                    </p>
+                    <div class="graph-placeholder">
+                        <canvas id="faltasFilhoChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card full-width">
+                    <h3>Notas do(a) seu(sua) Filho(a)</h3>
+                    {% if dados_calculados.medias_materias %}
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Disciplina</th>
+                                    <th>Nota 1</th>
+                                    <th>Nota 2</th>
+                                    <th>Soma (Total {{ config.NOTA_MINIMA_APROVACAO_MATERIA }} p/ aprovar)</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for disciplina in config.MATERIAS_ENSINO_FUNDAMENTAL %} {# Exibir todas as matérias padrão #}
+                                    {% set info = dados_calculados.medias_materias.get(disciplina) %}
+                                    <tr>
+                                        <td>{{ disciplina }}</td>
+                                        <td>{{ info.nota1 if info and info.nota1 != 'N/A' else 'N/A' }}</td>
+                                        <td>{{ info.nota2 if info and info.nota2 != 'N/A' else 'N/A' }}</td>
+                                        <td>{{ info.soma if info and info.soma != 'N/A' else 'N/A' }}</td>
+                                        <td class="status-{{ 'reprovado' if info and 'REPROVADO' in info.status else 'aprovado' }}">{{ info.status if info else 'N/A' }}</td>
+                                    </tr>
+                                {% endfor %}
+                                {% for disciplina, info in dados_calculados.medias_materias.items() %} {# Exibir matérias extras #}
+                                    {% if disciplina not in config.MATERIAS_ENSINO_FUNDAMENTAL %}
+                                        <tr>
+                                            <td>{{ disciplina }} (Extra)</td>
+                                            <td>{{ info.nota1 }}</td>
+                                            <td>{{ info.nota2 }}</td>
+                                            <td>{{ info.soma }}</td>
+                                            <td class="status-{{ 'reprovado' if 'REPROVADO' in info.status else 'aprovado' }}">{{ info.status }}</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <p class="overall-status status-{{ 'reprovado' if 'REPROVADO' in dados_calculados.status_geral_notas else 'aprovado' }}">
+                            Status Geral de Notas: **{{ dados_calculados.status_geral_notas }}**
+                        </p>
+                        {% if dados_calculados.materias_reprovadas %}
+                            <p class="reprovadas-list">Matérias reprovadas: <strong>{{ dados_calculados.materias_reprovadas | join(', ') }}</strong></p>
+                        {% else %}
+                            <p>Nenhuma matéria reprovada por nota.</p>
+                        {% endif %}
+                        <div class="graph-placeholder">
+                            <canvas id="notasFilhoChart"></canvas>
+                        </div>
+                    {% else %}
+                        <p>Nenhuma nota cadastrada para seu filho(a) ainda.</p>
+                    {% endif %}
+                </div>
+
+                <div class="card full-width">
+                    <h3>Status Final do(a) Aluno(a)</h3>
+                    <p class="final-status status-{{ 'reprovado' if 'REPROVADO' in dados_calculados.status_final_aluno else 'aprovado' }}">
+                        **{{ dados_calculados.status_final_aluno }}**
+                    </p>
+                </div>
+
+            {% else %}
+                <p>Nenhuma informação do filho encontrada. Entre em contato com a administração da escola.</p>
+            {% endif %}
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+    <script>
+        // Gráfico de Faltas do Filho
+        const faltasFilhoCtx = document.getElementById('faltasFilhoChart').getContext('2d');
+        new Chart(faltasFilhoCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Presente', 'Faltas'],
+                datasets: [{
+                    data: [{{ dados_calculados.faltas_grafico.presente }}, {{ dados_calculados.faltas_grafico.ausente }}],
+                    backgroundColor: ['#28a745', '#dc3545'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#333'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed) {
+                                    label += context.parsed + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de Notas do Filho
+        const notasFilhoCtx = document.getElementById('notasFilhoChart').getContext('2d');
+        new Chart(notasFilhoCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Disciplinas Aprovadas', 'Disciplinas Reprovadas'],
+                datasets: [{
+                    data: [{{ dados_calculados.notas_grafico.aprovadas }}, {{ dados_calculados.notas_grafico.reprovadas }}],
+                    backgroundColor: ['#17a2b8', '#ffc107'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#333'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed) {
+                                    label += context.parsed + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

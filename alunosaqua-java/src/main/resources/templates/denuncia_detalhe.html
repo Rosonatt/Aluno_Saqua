@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Denúncia - AlunoSaqua</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+    <div class="container">
+        <div class="logo">
+            <img th:src="@{/images/logo.png}" alt="AlunoSaqua Logo">
+            <h1>AlunoSaqua</h1>
+        </div>
+        <nav>
+            <span th:text="|Bem-vindo(a), ${session.username}!|"></span>
+            <a th:href="@{/psicopedagogo/dashboard}">Dashboard</a>
+            <a th:href="@{/logout}">Sair</a>
+        </nav>
+    </div>
+</header>
+<main class="dashboard-content">
+    <div class="container">
+        <h2>Detalhes da Denúncia</h2>
+        <div class="card full-width">
+            <p><strong>Aluno:</strong> <span th:text="${alunoNome}"></span> (Matrícula: <span th:text="${denuncia.alunoMatricula}"></span>)</p>
+            <p><strong>ID da Denúncia:</strong> <span th:text="${denuncia.id}"></span></p>
+            <p><strong>Descrição:</strong> <span th:text="${denuncia.descricao}"></span></p>
+            <p><strong>Urgência:</strong> <span th:text="${#strings.substring(denuncia.urgencia, 0, 1).toUpperCase() + #strings.substring(denuncia.urgencia, 1)}"></span></p>
+            <p><strong>Status:</strong> <span th:text="${#strings.substring(denuncia.status, 0, 1).toUpperCase() + #strings.substring(denuncia.status, 1)}"></span></p>
+
+            <h3>Notas do Aluno:</h3>
+            <div th:if="${alunoNotasCalculadas}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Disciplina</th>
+                        <th>Nota 1</th>
+                        <th>Nota 2</th>
+                        <th>Soma (Total <span th:text="${NOTA_MINIMA_APROVACAO_MATERIA}"></span> p/ aprovar)</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="disciplina : ${MATERIAS_ENSINO_FUNDAMENTAL}">
+                        <td th:text="${disciplina}"></td>
+                        <td th:with="info=${alunoNotasCalculadas.get(disciplina)}">
+                            <span th:text="${info != null ? info.getNota1() : 'N/A'}"></span>
+                        </td>
+                        <td th:with="info=${alunoNotasCalculadas.get(disciplina)}">
+                            <span th:text="${info != null ? info.getNota2() : 'N/A'}"></span>
+                        </td>
+                        <td th:with="info=${alunoNotasCalculadas.get(disciplina)}">
+                            <span th:text="${info != null ? info.getSoma() : 'N/A'}"></span>
+                        </td>
+                        <td th:with="info=${alunoNotasCalculadas.get(disciplina)}"
+                            th:classappend="|status-${info != null ? #strings.toLowerCase(info.getStatus()) : 'aprovado'}|">
+                            <span th:text="${info != null ? info.getStatus() : 'N/A'}"></span>
+                        </td>
+                    </tr>
+                    <tr th:each="entry : ${alunoNotasCalculadas.entrySet()}"
+                        th:if="${!MATERIAS_ENSINO_FUNDAMENTAL.contains(entry.key)}">
+                        <td th:text="${entry.key} + ' (Extra)'"></td>
+                        <td th:text="${entry.value.getNota1()}"></td>
+                        <td th:text="${entry.value.getNota2()}"></td>
+                        <td th:text="${entry.value.getSoma()}"></td>
+                        <td th:classappend="|status-${#strings.toLowerCase(entry.value.getStatus())}|" th:text="${entry.value.getStatus()}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:unless="${alunoNotasCalculadas}">
+                <p>Nenhuma nota cadastrada para este aluno.</p>
+            </div>
+
+            <div th:if="${denuncia.status == 'aberta'}">
+                <form th:action="@{/psicopedagogo/fechar_denuncia/{id}(id=${denuncia.id})}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-primary">Marcar como Fechada</button>
+                </form>
+            </div>
+            <a th:href="@{/psicopedagogo/dashboard}" class="btn-secondary">Voltar para Denúncias</a>
+        </div>
+    </div>
+</main>
+<footer>
+    <div class="container">
+        <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+    </div>
+</footer>
+</body>
+</html>

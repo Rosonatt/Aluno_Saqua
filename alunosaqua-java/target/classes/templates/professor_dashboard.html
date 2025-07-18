@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Professor - AlunoSaqua</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+    <div class="container">
+        <div class="logo">
+            <img th:src="@{/images/logo.png}" alt="AlunoSaqua Logo">
+            <h1>AlunoSaqua</h1>
+        </div>
+        <nav>
+            <span th:text="|Bem-vindo(a), Prof. ${session.username}!|"></span>
+            <a th:href="@{/logout}">Sair</a>
+        </nav>
+    </div>
+</header>
+<main class="dashboard-content">
+    <div class="container">
+        <h2>Gerenciamento de Alunos</h2>
+        <div th:if="${message}" th:classappend="|flashes ${messageType}|">
+            <p th:text="${message}"></p>
+        </div>
+
+        <div class="card full-width">
+            <h3>Lista de Alunos</h3>
+            <p th:if="${disciplinaProfessor}">Você gerencia alunos da disciplina de <strong th:text="${disciplinaProfessor}"></strong>.</p>
+            <p th:unless="${disciplinaProfessor}">Você gerencia alunos de todas as disciplinas (perfil geral).</p>
+
+            <div th:if="${!alunos.isEmpty()}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Matrícula</th>
+                        <th>Nome</th>
+                        <th>Turma</th>
+                        <th>Faltas (%)</th>
+                        <th>Status Faltas</th>
+                        <th th:if="${disciplinaProfessor}" th:text="|${disciplinaProfessor} (Soma)|"></th>
+                        <th th:if="${disciplinaProfessor}" th:text="|Status ${disciplinaProfessor}|"></th>
+                        <th th:unless="${disciplinaProfessor}">Status Geral Notas</th>
+                        <th>Status Final</th>
+                        <th>Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="aluno : ${alunos}">
+                        <td th:text="${aluno.matricula_aluno}"></td>
+                        <td th:text="${aluno.nome}"></td>
+                        <td th:text="${aluno.turma != null ? aluno.turma : 'N/A'}"></td>
+                        <td th:text="${aluno.faltas} + ' (' + ${aluno.porcentagem_faltas} + '%)'"></td>
+                        <td th:classappend="|status-${#strings.toLowerCase(aluno.status_faltas.split(' ')[0])}|" th:text="${aluno.status_faltas}"></td>
+                        <td th:if="${disciplinaProfessor}" th:text="${aluno.nota_disciplina_professor_soma != null ? #numbers.formatDecimal(aluno.nota_disciplina_professor_soma, 1, 1) : 'N/A'}"></td>
+                        <td th:if="${disciplinaProfessor}"
+                            th:classappend="|status-${aluno.status_disciplina_professor != null ? #strings.toLowerCase(aluno.status_disciplina_professor.split(' ')[0]) : 'aprovado'}|"
+                            th:text="${aluno.status_disciplina_professor != null ? aluno.status_disciplina_professor : 'N/A'}"></td>
+                        <td th:unless="${disciplinaProfessor}" th:classappend="|status-${#strings.toLowerCase(aluno.status_geral_notas.split(' ')[0])}|" th:text="${aluno.status_geral_notas}"></td>
+                        <td th:classappend="|final-status status-${#strings.toLowerCase(aluno.status_final_aluno.split(' ')[0])}|" th:text="${aluno.status_final_aluno}"></td>
+                        <td>
+                            <a th:href="@{/professor/atualizar_dados/{matricula}(matricula=${aluno.matricula_aluno})}" class="btn-sm">Atualizar</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:unless="${!alunos.isEmpty()}">
+                <p>Nenhum aluno encontrado para a sua disciplina.</p>
+            </div>
+        </div>
+    </div>
+</main>
+<footer>
+    <div class="container">
+        <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+    </div>
+</footer>
+</body>
+</html>
