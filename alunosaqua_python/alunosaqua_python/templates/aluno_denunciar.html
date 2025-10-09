@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fazer Denúncia Anônima - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="{{ url_for('aluno_dashboard') }}">Voltar ao Menu</a>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="form-container">
+        <div class="container">
+            <h2>Nova Denúncia Anônima</h2>
+            <p>Use este formulário para reportar anonimamente situações de bullying ou problemas graves. Sua identidade é protegida. Quanto mais detalhes, melhor poderemos ajudar.</p>
+            
+            <form method="POST">
+                
+                <div class="form-group">
+                    <label for="descricao">1. **Descreva detalhadamente o que está acontecendo:**</label>
+                    <textarea id="descricao" name="descricao" rows="6" required placeholder="O quê (o ato), Onde (local exato), Quando (data e hora aproximada), Quem (pessoas envolvidas ou testemunhas)."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <p>2. **O problema envolve (o agressor principal ou grupo):**</p>
+                    <label><input type="radio" name="agressor_tipo" value="aluno" required> Aluno(s)</label>
+                    <label><input type="radio" name="agressor_tipo" value="professor"> Professor(a) / Docente</label>
+                    <label><input type="radio" name="agressor_tipo" value="outro_funcionario"> Funcionário(a) da Escola (Não-docente)</label>
+                    <label><input type="radio" name="agressor_tipo" value="outro_externo"> Outra Pessoa (Externa à escola)</label>
+                </div>
+                
+                <div class="form-group">
+                    <p>3. **O ato pode ser classificado como (marque todos que se aplicam):**</p>
+                    <label><input type="checkbox" name="natureza[]" value="fisico"> Agressão Física</label>
+                    <label><input type="checkbox" name="natureza[]" value="verbal"> Ofensas Verbais / Psicológico (Insultos, Ameaças)</label>
+                    <label><input type="checkbox" name="natureza[]" value="social"> Social (Exclusão, Fofoca, Boato)</label>
+                    <label><input type="checkbox" name="natureza[]" value="virtual"> Virtual (Cyberbullying, Postagens de Ódio)</label>
+                    <label><input type="checkbox" name="natureza[]" value="patrimonial"> Dano ao Patrimônio / Furto</label>
+                    <label><input type="checkbox" name="natureza[]" value="outros"> Outro (Especificar na descrição)</label>
+                </div>
+
+                <div class="form-group">
+                    <p>4. **Com que frequência este incidente/situação tem ocorrido?**</p>
+                    <label><input type="radio" name="frequencia" value="unica" required> Apenas uma vez</label>
+                    <label><input type="radio" name="ocasional"> De vez em quando (Ocasional)</label>
+                    <label><input type="radio" name="regular"> Regularmente (Semanalmente ou mais)</label>
+                    <label><input type="radio" name="diaria"> Quase Diariamente</label>
+                </div>
+
+                <div class="form-group">
+                    <p>5. **Onde o incidente ocorreu ou costuma ocorrer (Local principal)?**</p>
+                    <label><input type="radio" name="local" value="sala_aula" required> Sala de Aula</label>
+                    <label><input type="radio" name="patio"> Pátio / Quadra / Área Externa</label>
+                    <label><input type="radio" name="banheiro"> Banheiro</label>
+                    <label><input type="radio" name="corredor"> Corredores / Escadas</label>
+                    <label><input type="radio" name="online"> Online (Redes Sociais, Aplicativos)</label>
+                    <label><input type="radio" name="fora_escola"> Fora das dependências da escola</label>
+                </div>
+
+                <div class="form-group">
+                    <p>6. **Essa situação já foi comunicada a algum responsável da escola antes?**</p>
+                    <label><input type="radio" name="reportado" value="sim" required> Sim</label>
+                    <label><input type="radio" name="nao"> Não</label>
+                    <label><input type="radio" name="nao_sei"> Não sei / Não tenho certeza</label>
+                </div>
+
+                <div class="form-group">
+                    <p>7. **A vítima é...**</p>
+                    <label><input type="radio" name="vitima_conhecimento" value="eu" required> Eu mesmo(a)</label>
+                    <label><input type="radio" name="amigo"> Um(a) amigo(a)</label>
+                    <label><input type="radio" name="colega"> Um(a) colega de turma que observei</label>
+                    <label><input type="radio" name="nao_conheco"> Alguém que não conheço (Vi o incidente)</label>
+                </div>
+
+                <div class="form-group">
+                    <p>8. **Você possui alguma evidência (fotos, vídeos, prints, áudios) sobre o ocorrido?**</p>
+                    <label><input type="radio" name="evidencia" value="sim" required> Sim, mas não anexarei aqui (Será solicitado se necessário).</label>
+                    <label><input type="radio" name="nao"> Não, mas há testemunhas.</label>
+                    <label><input type="radio" name="nenhuma"> Não, e não há evidências ou testemunhas que eu saiba.</label>
+                </div>
+
+                <div class="form-group">
+                    <p>9. **Qual a sua percepção da gravidade do ato?**</p>
+                    <label><input type="radio" name="gravidade" value="baixa" required> Baixa (Situação desconfortável, mas não ameaçadora)</label>
+                    <label><input type="radio" name="media"> Média (Causa angústia e/ou prejuízo)</label>
+                    <label><input type="radio" name="alta"> Alta (Ameaça à integridade física/psicológica ou crime)</label>
+                </div>
+
+                <div class="form-group">
+                    <label for="expectativa">10. **Em poucas palavras, qual resultado você espera da escola ao lidar com esta denúncia?**</label>
+                    <textarea id="expectativa" name="expectativa" rows="3" placeholder="Ex: Que pare imediatamente, que o agressor seja advertido, que a vítima receba apoio."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary">Enviar Denúncia Anônima</button>
+                <a href="{{ url_for('aluno_dashboard') }}" class="btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

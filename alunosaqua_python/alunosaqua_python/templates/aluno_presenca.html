@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Presença - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .calendar { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .calendar th, .calendar td { border: 1px solid #ddd; padding: 10px; text-align: center; vertical-align: top; height: 90px; }
+        .calendar th { background-color: #f2f2f2; height: auto; }
+        .calendar .other-month { color: #ccc; background-color: #fdfdfd; }
+        .day-number { font-weight: bold; display: block; text-align: left; margin-bottom: 5px; }
+        .event { font-size: 0.8em; padding: 3px; border-radius: 4px; color: white; margin-top: 5px; display: block; }
+        .event.falta { background-color: var(--red-danger); }
+        .event.prova { background-color: #ff9800; } /* Laranja para prova */
+        .today { background-color: #fffde7; }
+        .grid-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: start; }
+        @media (max-width: 992px) { .grid-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo"><h1>AlunoSaqua</h1></div>
+            <nav><span>{{ aluno.nome }}</span><a href="{{ url_for('aluno_dashboard') }}">Voltar</a><a href="{{ url_for('logout') }}">Sair</a></nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2>MINHA PRESENÇA - {{ mes_atual }}/{{ ano_atual }}</h2>
+            <div class="grid-container">
+                <div class="card">
+                    <h3>RESUMO ANUAL</h3>
+                    <div style="height: 200px; margin: auto; max-width: 200px;">
+                        <canvas id="presencaChart"></canvas>
+                    </div>
+                    <p style="text-align: center; margin-top: 15px;">
+                        <strong>Total de Faltas:</strong> {{ dados_calculados.num_faltas }}<br>
+                        <strong>Frequência:</strong> {{ 100 - dados_calculados.porcentagem_faltas }}%
+                    </p>
+                    <div class="final-status status-{{ 'reprovado' if 'REPROVADO' in dados_calculados.status_faltas else 'aprovado' }}">
+                        <strong>Status: {{ dados_calculados.status_faltas }}</strong>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>CALENDÁRIO DO MÊS</h3>
+                    <div style="display: flex; justify-content: space-around; margin-bottom: 20px; font-weight: bold;">
+                        <div><span class="event falta" style="padding: 5px; display: inline-block;"></span> Dia de Falta</div>
+                        <div><span class="event prova" style="padding: 5px; display: inline-block;"></span> Dia de Prova</div>
+                    </div>
+                    <table class="calendar">
+                        <thead><tr><th>Dom</th><th>Seg</th><th>Ter</th><th>Qua</th><th>Qui</th><th>Sex</th><th>Sáb</th></tr></thead>
+                        <tbody>
+                            {% for semana in semanas %}
+                            <tr>
+                                {% for dia in semana %}
+                                    {% set dia_str = dia.strftime('%Y-%m-%d') %}
+                                    <td class="{% if dia.month != mes_atual %}other-month{% endif %} {% if dia == hoje %}today{% endif %}">
+                                        <span class="day-number">{{ dia.day }}</span>
+                                        {% if dia_str in aluno.faltas %}<div class="event falta">FALTA</div>{% endif %}
+                                        {% for materia, datas_provas in aluno.provas.items() %}
+                                            {% if dia_str in datas_provas %}<div class="event prova">Prova: {{ materia }}</div>{% endif %}
+                                        {% endfor %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('presencaChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Presenças (%)', 'Faltas (%)'],
+                    datasets: [{
+                        label: 'Frequência',
+                        data: [{{ chart_data.presente }}, {{ chart_data.ausente }}],
+                        backgroundColor: ['rgba(40, 167, 69, 0.8)','rgba(220, 53, 69, 0.8)'],
+                        borderColor: ['rgba(40, 167, 69, 1)','rgba(220, 53, 69, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true, position: 'bottom' } }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

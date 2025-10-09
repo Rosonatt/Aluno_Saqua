@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1></div>
+            <nav>
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('informacoes_cadastro') }}">Cadastre-se</a>
+            </nav>
+        </div>
+    </header>
+    <main class="hero">
+        <div class="container" style="display: flex; align-items: center; justify-content: space-around;">
+            <div>
+                <h2>Acompanhe seu desempenho escolar de forma simples e intuitiva.</h2>
+                <p>Acesse suas notas, frequência e comunique-se com a escola.</p>
+            </div>
+            <div class="backimg">
+                <img src="{{ url_for('static', filename='images/IMAGEBACK.png') }}" alt="Celular com chapéu de formatura" style="max-width: 500px;"></div>
+        </div>
+    </main>
+    <footer>
+        <div class="container-footer"><p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+</div>
+    </footer>
+</body>
+</html>
+<!--
+MEXIDO
+-->

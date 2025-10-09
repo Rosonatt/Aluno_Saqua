@@ -1,0 +1,324 @@
+/* Seu CSS original aqui... (Vou usar o que você me mandou no início) */
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap');
+
+:root {
+    --primary-green: #2B7A0E;
+    --secondary-green: #1F5C0A;
+    --light-green: #90EE90;
+    --white: #FFFFFF;
+    --dark-grey: #333333;
+    --medium-grey: #CCCCCC;
+    --light-grey: #F0F0F0;
+    --red-danger: #dc3545;
+    --yellow-warning: #ffc107;
+    --blue-info: #17a2b8;
+    --input-border: #dcdcdc;
+    --status-aprovado: #28a745;
+    --status-reprovado: #dc3545;
+}
+
+* {
+    font-family: "League Spartan", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    line-height: 1.6;
+    color: var(--dark-grey);
+    background: #028d16;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--white);
+}
+
+.container {
+    
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+
+.container h2 {
+    text-align: center;
+    color: #FFFFFF;
+    font-size: 30px;
+}
+
+.container a{
+    transition: 0.6s;
+}
+.container a:hover {
+    color: rgb(156, 156, 156);
+}
+.container-info{
+    border: none;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 700px;
+    max-height: 600px;
+    background-color: white;
+}
+
+.container-info i {
+    font-size: 15px;
+}
+.container-info h2 {
+    color: black;
+}
+
+.container-info h4 {
+    font-size: 25px;
+    color: black;
+}
+.container-footer{
+    margin-left: 20px;
+    background-color: #028d16;
+    color: var(--white);
+    padding: 15px 0;
+    margin-top: auto;
+    width: 100%;
+    text-align: left;
+    box-shadow: 10px 10px 15px rgba(1, 0, 0, 0.5);
+}
+.backimg{
+    margin-left: 150px;
+}
+.logo{
+    display: flex;
+}
+
+
+.logo h1{
+    margin-top: 10px;
+}
+header {
+    background-color: #028d16;
+    color: var(--white);
+    padding: 4px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    width: 100%;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo img {
+    height: 50px;
+    margin-right: 10px;
+}
+
+header h1 {
+    font-size: 1.7em;
+    color: var(--white);
+}
+
+header nav a, header nav span {
+    color: var(--white);
+    font-size: 20px;
+    text-decoration: none;
+    margin-left: 20px;
+    font-weight: 700;
+}
+
+.hero {
+    background: var(--white);
+    color: var(--dark-grey);
+    padding: 80px 0;
+    text-align: center;
+    width: 100%;
+    flex-grow: 1;
+}
+.hero h2 {
+    line-height: 45px;
+    text-align: left;
+    font-size: 45px;
+    color: black;
+    margin-left: -100px;
+}
+
+.hero p {
+    color: black;
+    text-align: left;
+    font-size: 30px;
+    margin-left: -100px;
+    line-height: 30px;
+}
+.form-container, .dashboard-content {
+    padding: 50px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.dashboard-content h3{
+    color: black;
+}
+.dashboard-content i {
+    font-size: 15px;
+}
+.infocad{
+    font-weight: bold;
+    font-size: 18px;
+    margin-top: 10px;
+}
+.form-container .container {
+    background-color: var(--white);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    max-width: 600px;
+    max-height: 3300px;
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    font-size:1.2rem;
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    font-size: 1.2em;
+}
+
+.btn-primary {
+    background-color: #028d16;
+    color: var(--white);
+    padding: 14px 30px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.05em;
+    font-weight: 700;
+    display: block;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+}
+.btn-comeback{
+    text-decoration: none;
+    font-size: 18px;
+    color: #FFFFFF;
+    border: none;
+    cursor: pointer;
+    padding: 15px;
+    background-color: #028b16;
+    border-radius: 10px;
+}
+.btn-secondary {
+    background-color: #8B0000;
+    color: var(--white);
+    padding: 14px 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.05em;
+    font-weight: 700;
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+}
+
+.flashes {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.flashes li {
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border: 1px solid;
+}
+.flashes .success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+.flashes .danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+.flashes .warning { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
+.flashes .info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+
+
+.card {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    color: var(--dark-grey);
+}
+.card.full-width { width: 100%; }
+
+.card h3 { 
+    color: #028b16;
+    margin-bottom: 18px; 
+}
+
+.card a{
+    font-size: 20px;
+}
+
+.card p {
+    font-size: 20px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+}
+table th, table td {
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    text-align: left;
+    font-weight: bold;
+}
+table th {
+    font-size: 20px;
+    background-color: #f0f8f0;
+}
+
+.status-aprovado { color: var(--status-aprovado); font-weight: bold; }
+.status-reprovado { color: var(--status-reprovado); font-weight: bold; }
+
+.final-status {
+    font-size: 1.2em; padding: 10px; border-radius: 5px;
+    text-align: center; margin-top: 20px;
+}
+.final-status.status-aprovado { background-color: rgba(40, 167, 69, 0.1); border: 1px solid var(--status-aprovado); }
+.final-status.status-reprovado { background-color: rgba(220, 53, 69, 0.1); border: 1px solid var(--status-reprovado); }
+
+.reprovadas-list {
+    margin-top: 10px; padding: 10px; background-color: #f8d7da;
+    color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;
+}
+
+footer {
+    background-color: #028b16;
+    color: var(--white);
+    padding: 4px 0;
+    margin-top: auto;
+    width: 100%;
+    text-align: left;
+}

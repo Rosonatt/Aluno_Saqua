@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Notas - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1>
+            </div>
+            <nav>
+                <span>Bem-vindo(a), {{ aluno.nome }}!</span>
+                <a href="{{ url_for('aluno_dashboard') }}">Voltar ao Menu</a>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2>MINHAS NOTAS</h2>
+            <div class="card full-width">
+                <h3>NOTAS POR MATÉRIA</h3>
+                {% if dados_calculados.medias_materias %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Disciplina</th>
+                                <th>Nota 1</th>
+                                <th>Nota 2</th>
+                                <th>Soma (Mínimo {{ config.NOTA_MINIMA_APROVACAO_MATERIA }})</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for disciplina, info in dados_calculados.medias_materias|dictsort %}
+                            <tr>
+                                <td>{{ disciplina }}</td>
+                                <td>{{ info.nota1 }}</td>
+                                <td>{{ info.nota2 }}</td>
+                                <td>{{ info.soma }}</td>
+                                <td class="status-{{ 'reprovado' if 'REPROVADO' in info.status else 'aprovado' }}">
+                                    <strong>{{ info.status }}</strong>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <hr>
+                    <div class="final-status status-{{'reprovado' if 'REPROVADO' in dados_calculados.status_geral_notas else 'aprovado'}}">
+                        <strong>Status Geral por Notas: {{ dados_calculados.status_geral_notas }}</strong>
+                    </div>
+
+                    {% if dados_calculados.materias_reprovadas %}
+                        <p class="reprovadas-list">
+                            Matérias reprovadas: {{ dados_calculados.materias_reprovadas | join(', ') }}
+                        </p>
+                    {% endif %}
+
+                {% else %}
+                    <p>Nenhuma nota cadastrada para você ainda.</p>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container-footer">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Aluno - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo"><h1>AlunoSaqua</h1></div>
+            <nav>
+                <span>Bem-vindo(a), {{ aluno.nome }}!</span>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container" style="max-width: 800px;">
+            <h2>MENU DO ALUNO</h2>
+             {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}<ul class="flashes">{% for c, m in messages %}<li class="{{ c }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
+            {% endwith %}
+            <div class="card full-width" style="text-align: center;">
+                <a href="{{ url_for('aluno_notas') }}" class="btn-primary" style="margin-bottom: 15px;">Consultar Minhas Notas</a>
+                <a href="{{ url_for('aluno_presenca') }}" class="btn-primary" style="margin-bottom: 15px;">Consultar Minha Presença</a>
+                <hr style="margin: 20px 0;">
+                <a href="{{ url_for('aluno_denunciar') }}" class="btn-primary" style="background-color: var(--red-danger);">Fazer Denúncia Anônima</a>
+            </div>
+        </div>
+    </main>
+    <footer><div class="container-footer"><p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p></div></footer>
+</body>
+</html>

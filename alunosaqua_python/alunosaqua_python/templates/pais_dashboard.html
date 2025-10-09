@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard dos Pais - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1>
+            </div>
+            <nav>
+                <span>Bem-vindo(a), {{ session.username }}!</span>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2>Informações do(a) seu(sua) Filho(a): {{ filho.nome }} <i class="fa-solid fa-turn-down"></i></h2>
+            <div class="card full-width">
+                <h3>RESUMO GERAL</h3>
+                <p><strong>Status por Faltas:</strong> <span class="status-{{'reprovado' if 'REPROVADO' in dados_calculados.status_faltas else 'aprovado'}}">{{ dados_calculados.status_faltas }}</span> (Total de Faltas: {{ dados_calculados.num_faltas }})</p>
+                <p><strong>Status por Notas:</strong> <span class="status-{{'reprovado' if 'REPROVADO' in dados_calculados.status_geral_notas else 'aprovado'}}">{{ dados_calculados.status_geral_notas }}</span></p>
+                
+                <div class="final-status status-{{'reprovado' if 'REPROVADO' in dados_calculados.status_final_aluno else 'aprovado'}}">
+                    <strong>Status Final do Aluno: {{ dados_calculados.status_final_aluno }}</strong>
+                </div>
+            </div>
+
+            <div class="card full-width" style="margin-top: 20px;">
+                <h3>DESEMPENHO POR MATÉRIA</h3>
+                {% if dados_calculados.medias_materias %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Disciplina</th>
+                                <th>Nota 1</th>
+                                <th>Nota 2</th>
+                                <th>Soma (Mínimo {{ config.NOTA_MINIMA_APROVACAO_MATERIA }})</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for disciplina, info in dados_calculados.medias_materias|dictsort %}
+                            <tr>
+                                <td>{{ disciplina }}</td>
+                                <td>{{ info.nota1 }}</td>
+                                <td>{{ info.nota2 }}</td>
+                                <td>{{ info.soma }}</td>
+                                <td class="status-{{ 'reprovado' if 'REPROVADO' in info.status else 'aprovado' }}">
+                                    <strong>{{ info.status }}</strong>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    {% if dados_calculados.materias_reprovadas %}
+                        <p class="reprovadas-list" style="margin-top: 15px;">
+                            Matérias reprovadas: {{ dados_calculados.materias_reprovadas | join(', ') }}
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <p>Nenhuma nota cadastrada para este aluno ainda.</p>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container-footer">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>
+
+<!--
+MEXIDO
+-->

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login">
+
+    <main class="form-container">
+        <div class="container">
+            <div class="logo-ava">
+                <img src="{{ url_for('static', filename='images/loginimage.png') }}" alt="Logo da Escola">
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="user_type">Eu sou:</label>
+                    <select id="user_type" name="user_type" required>
+                        <option value="aluno">Aluno</option>
+                        <option value="pais">Pai/Responsável</option>
+                        <option value="professor">Professor</option>
+                        <option value="psicopedagogo">Psicopedagogo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="username">Usuário :</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-primary">Acessar</button>
+            </form>
+            <div class="infocad">
+                <p>Não tem cadastro? <a href="{{ url_for('informacoes_cadastro') }}">Veja como se cadastrar</a>.</p>
+                <hr style="margin-top: 25px;">
+            <a href="{{ url_for('index') }}" class="btn-secondary" style="display: block; text-align: center; width: 100%;">‹ Voltar à Página Inicial</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
+
+<!--
+MEXIDO
+-->

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DETALHES DA DENÚNCIA - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo"><h1>AlunoSaqua</h1></div>
+            <nav><span>{{ session['username'] }}</span><a href="{{ url_for('psicopedagogo_dashboard') }}">Voltar</a><a href="{{ url_for('logout') }}">Sair</a></nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2>DETALHES DA DENÚNCIA (Serial: {{ denuncia.serial }})</h2>
+            <div class="card full-width" style="text-align: left;">
+                <h3>INFORMAÇÕES DO CASO</h3>
+                <p><strong>Aluno:</strong> {{ aluno.nome }} (Matrícula: {{ denuncia.aluno_matricula }})</p>
+                <p><strong>Urgência Definida:</strong> {{ denuncia.urgencia|capitalize }}</p>
+                <p><strong>Status do Caso:</strong> {{ denuncia.status|capitalize }}</p>
+                <p><strong>Agressor Reportado:</strong> {{ denuncia.agressor|capitalize }}</p>
+                <p><strong>Natureza do Ato:</strong> {{ denuncia.natureza|capitalize }}</p>
+                <hr>
+                <h4>DESCRIÇÃO COMPLETA:</h4>
+                <p style="background-color: #f8f9fa; padding: 15px; border-radius: 5px;">{{ denuncia.descricao }}</p>
+                <hr>
+                <h3>CONTEXTO DO ALUNO (NOTAS)</h3>
+                <p><strong>Status Geral (Notas):</strong> <span class="status-{{'reprovado' if 'REPROVADO' in dados_calculados.status_geral_notas else 'aprovado'}}">{{ dados_calculados.status_geral_notas }}</span></p>
+                {% if dados_calculados.materias_reprovadas %}
+                    <p><strong>Matérias com nota de reprovação:</strong> {{ dados_calculados.materias_reprovadas|join(', ') }}</p>
+                {% else %}
+                    <p>O aluno não possui notas de reprovação.</p>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+    <footer><div class="container-footer"><p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p></div></footer>
+</body>
+</html>

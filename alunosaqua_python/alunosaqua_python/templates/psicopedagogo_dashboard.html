@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Psicopedagogo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo"><h1>AlunoSaqua</h1></div>
+            <nav><span>Bem-vindo(a), {{ session['username'] }}!</span><a href="{{ url_for('logout') }}">Sair</a></nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2 class="gerneciamento">GERENCIAMENTO DE DENUNCIAS</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<ul class="flashes">{% for c, m in messages %}<li class="{{ c }}">{{ m }}</li>{% endfor %}</ul>{% endif %}{% endwith %}
+            <div class="card full-width">
+                <h3>CASOS ABERTOS <i class="fa-solid fa-triangle-exclamation"></i></h3>
+                {% if denuncias %}
+                    <table>
+                        <thead>
+                            <tr><th>SERIAL</th><th>ALUNO</th><th>STATUS</th><th>URGÊNCIA (DEFINIR)</th><th>AÇÕES</th></tr>
+                        </thead>
+                        <tbody>
+                        {% for denuncia in denuncias %}
+                            <tr>
+                                <td><strong>{{ denuncia.serial }}</strong></td>
+                                <td>{{ denuncia.aluno_nome }} ({{ denuncia.aluno_matricula }})</td>
+                                <td>{{ denuncia.status|capitalize }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('definir_urgencia', denuncia_id=denuncia.id) }}" style="display: flex; align-items: center; gap: 10px;">
+                                        <select name="urgencia" style="padding: 5px; margin: 0;">
+                                            <option value="não classificada" {% if denuncia.urgencia == 'não classificada' %}selected{% endif %}>Não Classificada</option>
+                                            <option value="baixa" {% if denuncia.urgencia == 'baixa' %}selected{% endif %}>Baixa</option>
+                                            <option value="média" {% if denuncia.urgencia == 'média' %}selected{% endif %}>Média</option>
+                                            <option value="alta" {% if denuncia.urgencia == 'alta' %}selected{% endif %}>Alta</option>
+                                        </select>
+                                        <button type="submit" class="btn-sm" style="padding: 5px 10px; font-size: 0.9em;">Salvar</button>
+                                    </form>
+                                </td>
+                                <td><a href="{{ url_for('denuncia_detalhe', denuncia_id=denuncia.id) }}" class="btn-sm" style="background-color: #6c757d;">Ver Detalhes</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div style="text-align: center; padding: 40px;"><h3 style="color: var(--status-aprovado);">NENHUMA DENUNCIA ABERTA NO MOMENTO!</h3></div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+    <footer><div class="container-footer"><p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p></div></footer>
+</body>
+</html>

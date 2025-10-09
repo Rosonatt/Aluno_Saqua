@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Professor - AlunoSaqua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                <h1>AlunoSaqua</h1>
+            </div>
+            <nav>
+                <span>Bem-vindo(a), Prof. {{ session['username'] }}!</span>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2>Gerenciamento de Alunos</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}<ul class="flashes">{% for c, m in messages %}<li class="{{ c }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
+            {% endwith %}
+            
+            <div class="card full-width">
+                <div style="padding: 15px; background-color: #f0f8ff; border-radius: 5px; margin-bottom: 20px;">
+                    <form method="GET" action="{{ url_for('professor_dashboard') }}">
+                        <label for="disciplina" style="font-weight: bold; margin-right: 10px;">Visualizar turma de:</label>
+                        <select name="disciplina" id="disciplina" onchange="this.form.submit()" style="padding: 8px; font-size: 1em;">
+                            {% for disc in disciplinas %}
+                                <option value="{{ disc }}" {% if disc == disciplina_selecionada %}selected{% endif %}>{{ disc }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+
+                <h3>Alunos de {{ disciplina_selecionada }}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matrícula</th>
+                            <th>Nome</th>
+                            <th>Status na Disciplina</th>
+                            <th>Status Final (Geral)</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for aluno in alunos %}
+                        <tr>
+                            <td>{{ aluno.matricula }}</td>
+                            <td>{{ aluno.nome }}</td>
+                            <td class="status-{{ 'reprovado' if 'REPROVADO' in aluno.status_disciplina else 'aprovado' }}">
+                                <strong>{{ aluno.status_disciplina }}</strong>
+                            </td>
+                            <td class="status-{{ 'reprovado' if 'REPROVADO' in aluno.status_final else 'aprovado' }}">
+                                {{ aluno.status_final }}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('professor_atualizar_dados', matricula=aluno.matricula, disciplina=disciplina_selecionada) }}" class="btn-sm">Editar Notas</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
