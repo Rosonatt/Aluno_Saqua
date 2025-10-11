@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 import calendar
-from datetime import datetime, timedelta # Importa o timedelta
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'uma-chave-secreta-muito-forte-e-dificil-de-adivinhar'
@@ -125,52 +125,33 @@ def aluno_notas():
     aluno_data = USERS['alunos'][session['username']]
     return render_template('aluno_notas.html', aluno=aluno_data, dados_calculados=calcular_dados_aluno(aluno_data), config=app.config)
 
-# ====================================================================
-# INÍCIO DA ALTERAÇÃO
-# ====================================================================
 @app.route('/aluno/presenca')
 def aluno_presenca():
     if session.get('user_type') != 'aluno':
         return redirect(url_for('login'))
-
-    # 1. Obter o mês e o ano da URL, ou usar a data atual como padrão.
     try:
         ano_atual = int(request.args.get('ano', datetime.now().year))
         mes_atual = int(request.args.get('mes', datetime.now().month))
-        if not 1 <= mes_atual <= 12: # Garante que o mês seja válido
+        if not 1 <= mes_atual <= 12:
             raise ValueError("Mês inválido")
     except (ValueError, TypeError):
-        # Se os parâmetros forem inválidos, retorna para a data atual
         ano_atual = datetime.now().year
         mes_atual = datetime.now().month
-
-    # 2. Calcular mês anterior e próximo para os botões de navegação
     primeiro_dia_do_mes = datetime(ano_atual, mes_atual, 1)
-    
-    # Mês anterior: pega o primeiro dia do mês atual e subtrai 1 dia
     mes_anterior_data = primeiro_dia_do_mes - timedelta(days=1)
     ano_anterior = mes_anterior_data.year
     mes_anterior = mes_anterior_data.month
-    
-    # Próximo mês: pega o último dia do mês atual e adiciona 1 dia
     _, ultimo_dia_num = calendar.monthrange(ano_atual, mes_atual)
     ultimo_dia_do_mes = datetime(ano_atual, mes_atual, ultimo_dia_num)
     mes_seguinte_data = ultimo_dia_do_mes + timedelta(days=1)
     ano_seguinte = mes_seguinte_data.year
     mes_seguinte = mes_seguinte_data.month
-
-    # Lógica original da função
     aluno_data = USERS['alunos'][session['username']]
     dados = calcular_dados_aluno(aluno_data)
-    
     cal = calendar.Calendar()
-    # Gera o calendário para o mês e ano CORRETOS (vindos da URL ou atuais)
     semanas_do_mes = cal.monthdatescalendar(ano_atual, mes_atual)
-    
     chart = {'presente': 100 - dados['porcentagem_faltas'], 'ausente': dados['porcentagem_faltas']}
     hoje = datetime.now().date()
-
-    # 3. Passar todas as variáveis, incluindo as novas, para o template
     return render_template(
         'aluno_presenca.html',
         aluno=aluno_data,
@@ -181,24 +162,18 @@ def aluno_presenca():
         hoje=hoje,
         chart_data=chart,
         config=app.config,
-        # Novas variáveis para os botões de navegação
         ano_anterior=ano_anterior,
         mes_anterior=mes_anterior,
         ano_seguinte=ano_seguinte,
         mes_seguinte=mes_seguinte
     )
-# ====================================================================
-# FIM DA ALTERAÇÃO
-# ====================================================================
 
 @app.route('/aluno/denunciar', methods=['GET', 'POST'])
 def aluno_denunciar():
     if session.get('user_type') != 'aluno':
         return redirect(url_for('login'))
-        
     if request.method == 'POST':
         den_id = str(uuid.uuid4())
-        
         denuncia_data = {
             'ID': den_id.split('-')[0].upper(),
             'aluno_matricula': session['username'],
@@ -215,12 +190,9 @@ def aluno_denunciar():
             'gravidade': request.form.getlist('gravidade[]'),
             'expectativa': request.form.get('expectativa', 'Não preenchido')
         }
-        
         DENUNCIAS[den_id] = denuncia_data
-
         flash('Denúncia enviada com sucesso!', 'success')
         return redirect(url_for('aluno_dashboard'))
-        
     return render_template('aluno_denunciar.html')
 
 # --- ROTAS DOS PAIS ---
@@ -240,31 +212,71 @@ def professor_dashboard():
     disciplina_sel = request.args.get('disciplina', disciplinas[0])
     alunos_filtrados = []
     for matricula, aluno_data in USERS['alunos'].items():
-        if disciplina_sel in aluno_data.get('notas', {}):
-            dados = calcular_dados_aluno(aluno_data)
-            status_disciplina = dados['medias_materias'].get(disciplina_sel, {}).get('status', 'PENDENTE')
-            aluno_info = {'matricula': matricula, 'nome': aluno_data['nome'], 'turma': aluno_data.get('turma', 'N/A'), 'num_faltas': dados['num_faltas'], 'status_disciplina': status_disciplina, 'status_faltas': dados['status_faltas']}
-            alunos_filtrados.append(aluno_info)
+        dados = calcular_dados_aluno(aluno_data)
+        status_disciplina = dados['medias_materias'].get(disciplina_sel, {}).get('status', 'PENDENTE')
+        aluno_info = {
+            'matricula': matricula,
+            'nome': aluno_data['nome'],
+            'turma': aluno_data.get('turma', 'N/A'),
+            'num_faltas': dados['num_faltas'],
+            'status_disciplina': status_disciplina,
+            'status_faltas': dados['status_faltas']
+        }
+        alunos_filtrados.append(aluno_info)
     return render_template('professor_dashboard.html', alunos=alunos_filtrados, disciplinas=disciplinas, disciplina_selecionada=disciplina_sel)
 
-@app.route('/professor/atualizar-dados/<matricula>/<disciplina>', methods=['GET', 'POST'])
-def professor_atualizar_dados(matricula, disciplina):
-    if session.get('user_type') != 'professor': return redirect(url_for('login'))
-    aluno_data = USERS['alunos'].get(matricula)
-    if not aluno_data: return redirect(url_for('professor_dashboard'))
-    if disciplina not in USERS['professores'][session['username']]['disciplinas']:
+# ====================================================================
+# INÍCIO DA SEÇÃO DE DEPURAÇÃO
+# ====================================================================
+@app.route('/professor/atualizar-dados/<matricula>', methods=['GET', 'POST'])
+def professor_atualizar_dados(matricula):
+    print("\n--- ACESSANDO A ROTA ATUALIZAR DADOS ---")
+
+    if session.get('user_type') != 'professor': 
+        print("! ERRO: Usuário não é um professor. Redirecionando para login.")
+        return redirect(url_for('login'))
+    
+    disciplina = request.args.get('disciplina')
+    print(f"> Matrícula recebida: {matricula}")
+    print(f"> Disciplina recebida: {disciplina}")
+
+    if not disciplina:
+        print("! ERRO: Disciplina não foi especificada na URL. Redirecionando.")
+        flash('Disciplina não especificada.', 'danger')
         return redirect(url_for('professor_dashboard'))
+
+    aluno_data = USERS['alunos'].get(matricula)
+    if not aluno_data:
+        print(f"! ERRO: Aluno com matrícula {matricula} não encontrado. Redirecionando.")
+        return redirect(url_for('professor_dashboard'))
+    
+    print(f"> Aluno encontrado: {aluno_data.get('nome')}")
+    
+    professor_disciplinas = USERS['professores'][session['username']]['disciplinas']
+    print(f"> Verificando permissão: O professor ensina as disciplinas {professor_disciplinas}?")
+
+    if disciplina not in professor_disciplinas:
+        print(f"! ERRO: Permissão negada. O professor não ensina '{disciplina}'. Redirecionando.")
+        flash(f'Você não tem permissão para editar a disciplina de {disciplina}.', 'danger')
+        return redirect(url_for('professor_dashboard'))
+    
+    print(">>> SUCESSO: Permissões verificadas. A página de atualização será carregada.")
         
     if request.method == 'POST':
+        print("--- RECEBENDO DADOS DO FORMULÁRIO (POST) ---")
         n1_str, n2_str = request.form.get(f'nota_{disciplina}_1'), request.form.get(f'nota_{disciplina}_2')
+        print(f"> Notas recebidas: {n1_str}, {n2_str}")
         if n1_str and n2_str:
             try:
+                if 'notas' not in aluno_data:
+                    aluno_data['notas'] = {}
                 aluno_data['notas'][disciplina] = [float(n1_str), float(n2_str)]
                 flash(f'Notas de {disciplina} atualizadas com sucesso!', 'success')
             except ValueError:
                 flash('Valor inválido para as notas. Use apenas números.', 'danger')
 
         num_faltas_str = request.form.get('faltas')
+        print(f"> Faltas recebidas: {num_faltas_str}")
         if num_faltas_str is not None:
             try:
                 num_faltas = int(num_faltas_str)
@@ -278,8 +290,13 @@ def professor_atualizar_dados(matricula, disciplina):
                 
         return redirect(url_for('professor_dashboard', disciplina=disciplina))
         
-    if disciplina not in aluno_data.get('notas', {}): aluno_data.get('notas', {})[disciplina] = []
+    if disciplina not in aluno_data.get('notas', {}):
+        aluno_data.setdefault('notas', {})[disciplina] = []
+        
     return render_template('professor_atualizar_dados.html', aluno=aluno_data, matricula=matricula, disciplina=disciplina, config=app.config)
+# ====================================================================
+# FIM DA SEÇÃO DE DEPURAÇÃO
+# ====================================================================
 
 # --- ROTAS DO PSICOPEDAGOGO ---
 @app.route('/psicopedagogo/dashboard')
