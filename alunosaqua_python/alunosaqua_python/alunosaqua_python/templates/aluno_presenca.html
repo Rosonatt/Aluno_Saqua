@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Presença - AlunoSaqua</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -14,88 +15,149 @@
         .day-number { font-weight: bold; display: block; text-align: left; margin-bottom: 5px; }
         .event { font-size: 0.8em; padding: 3px; border-radius: 4px; color: white; margin-top: 5px; display: block; }
         .event.falta { background-color: var(--red-danger); }
-        .event.prova { background-color: #ff9800; } /* Laranja para prova */
+        .event.prova { background-color: #ff9800; }
         .today { background-color: #fffde7; }
-        .grid-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: start; }
-        @media (max-width: 992px) { .grid-container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <header>
-        <div class="container">
-            <div class="logo"><img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo"><h1>AlunoSaqua</h1></div>
-            <nav><span>{{ aluno.nome }}</span><a href="{{ url_for('aluno_dashboard') }}">Voltar</a><a href="{{ url_for('logout') }}">Sair</a></nav>
-        </div>
-    </header>
-    <main class="dashboard-content">
-        <div class="container">
-            <h2>MINHA PRESENÇA - {{ mes_atual }}/{{ ano_atual }}</h2>
-            <div class="grid-container">
-                <div class="card">
-                    <h3>RESUMO ANUAL</h3>
-                    <div style="height: 200px; margin: auto; max-width: 200px;">
-                        <canvas id="presencaChart"></canvas>
-                    </div>
-                    <p style="text-align: center; margin-top: 15px;">
-                        <strong>Total de Faltas:</strong> {{ dados_calculados.num_faltas }}<br>
-                        <strong>Frequência:</strong> {{ 100 - dados_calculados.porcentagem_faltas }}%
-                    </p>
-                    <div class="final-status status-{{ 'reprovado' if 'REPROVADO' in dados_calculados.status_faltas else 'aprovado' }}">
-                        <strong>Status: {{ dados_calculados.status_faltas }}</strong>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                    <h1 class="ms-2">AlunoSaqua</h1>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav ms-auto">
+                        <span class="navbar-text me-3">{{ aluno.nome }}</span>
+                        <a class="nav-link" href="{{ url_for('aluno_dashboard') }}">Voltar</a>
+                        <a class="nav-link" href="{{ url_for('logout') }}">Sair</a>
                     </div>
                 </div>
-                <div class="card">
-                    <h3>CALENDÁRIO DO MÊS</h3>
-                    <div style="display: flex; justify-content: space-around; margin-bottom: 20px; font-weight: bold;">
-                        <div><span class="event falta" style="padding: 5px; display: inline-block;"></span> Dia de Falta</div>
-                        <div><span class="event prova" style="padding: 5px; display: inline-block;"></span> Dia de Prova</div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard-content">
+        <div class="container">
+            <h2 class="text-center text-white mb-4">MINHA PRESENÇA - {{ mes_atual }}/{{ ano_atual }}</h2>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3>RESUMO ANUAL</h3>
+                            <div style="height: 200px; margin: auto; max-width: 200px;">
+                                <canvas id="presencaChart"></canvas>
+                            </div>
+                            <p class="text-center mt-3">
+                                <strong>Total de Faltas:</strong> {{ dados_calculados.num_faltas }}<br>
+                                <strong>Frequência:</strong> {{ 100 - dados_calculados.porcentagem_faltas }}%
+                            </p>
+                            <div class="final-status status-{{ 'reprovado' if 'REPROVADO' in dados_calculados.status_faltas else 'aprovado' }}">
+                                <strong>Status: {{ dados_calculados.status_faltas }}</strong>
+                            </div>
+                        </div>
                     </div>
-                    <table class="calendar">
-                        <thead><tr><th>Dom</th><th>Seg</th><th>Ter</th><th>Qua</th><th>Qui</th><th>Sex</th><th>Sáb</th></tr></thead>
-                        <tbody>
-                            {% for semana in semanas %}
-                            <tr>
-                                {% for dia in semana %}
-                                    {% set dia_str = dia.strftime('%Y-%m-%d') %}
-                                    <td class="{% if dia.month != mes_atual %}other-month{% endif %} {% if dia == hoje %}today{% endif %}">
-                                        <span class="day-number">{{ dia.day }}</span>
-                                        {% if dia_str in aluno.faltas %}<div class="event falta">FALTA</div>{% endif %}
-                                        {% for materia, datas_provas in aluno.provas.items() %}
-                                            {% if dia_str in datas_provas %}<div class="event prova">Prova: {{ materia }}</div>{% endif %}
+                </div>
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <a href="{{ url_for('aluno_presenca', ano=ano_anterior, mes=mes_anterior) }}" class="btn btn-outline-secondary">&lt; Mês Anterior</a>
+                                <h3 class="mb-0 text-center">CALENDÁRIO DO MÊS</h3>
+                                <a href="{{ url_for('aluno_presenca', ano=ano_seguinte, mes=mes_seguinte) }}" class="btn btn-outline-secondary">Próximo Mês &gt;</a>
+                            </div>
+                            
+                            <div class="fandp d-flex justify-content-around mb-3 fw-bold">
+                                <div><span class="event falta d-inline-block p-2"></span> Faltas </div>
+                                <div><span class="event prova d-inline-block p-2"></span> Dia de Prova</div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="calendar">
+                                    <thead><tr><th>Dom</th><th>Seg</th><th>Ter</th><th>Qua</th><th>Qui</th><th>Sex</th><th>Sáb</th></tr></thead>
+                                    <tbody>
+                                    {% for semana in semanas %}
+                                    <tr>
+                                        {% for dia in semana %}
+                                            {% set dia_str = dia.strftime('%Y-%m-%d') %}
+                                            <td class="{% if dia.month != mes_atual %}other-month{% endif %} {% if dia == hoje %}today{% endif %}">
+                                                <span class="day-number">{{ dia.day }}</span>
+                                                {% if dia_str in aluno.faltas %}<div class="event falta">FALTA</div>{% endif %}
+                                                {% for materia, datas_provas in aluno.provas.items() %}
+                                                    {% if dia_str in datas_provas %}<div class="event prova">Prova: {{ materia }}</div>{% endif %}
+                                                {% endfor %}
+                                            </td>
                                         {% endfor %}
-                                    </td>
-                                {% endfor %}
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const ctx = document.getElementById('presencaChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Presenças (%)', 'Faltas (%)'],
-                    datasets: [{
-                        label: 'Frequência',
-                        data: [{{ chart_data.presente }}, {{ chart_data.ausente }}],
-                        backgroundColor: ['rgba(40, 167, 69, 0.8)','rgba(220, 53, 69, 0.8)'],
-                        borderColor: ['rgba(40, 167, 69, 1)','rgba(220, 53, 69, 1)'],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: true, position: 'bottom' } }
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('presencaChart').getContext('2d');
+        
+        // Seus dados vindos do backend
+        const presencasPercent = {{ chart_data.presente }};
+        const faltasPercent = {{ chart_data.ausente }};
+        const data = {
+            labels: ['Presenças', 'Faltas'],
+            datasets: [{
+                label: 'Frequência',
+                data: [presencasPercent, faltasPercent],
+                backgroundColor: ['rgba(40, 167, 69, 0.8)','rgba(220, 53, 69, 0.8)'],
+                borderColor: ['rgba(40, 167, 69, 1)','rgba(220, 53, 69, 1)'],
+                borderWidth: 1
+            }]
+        };
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            // Esta função adiciona a porcentagem na legenda
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map(function(label, i) {
+                                        const meta = chart.getDatasetMeta(0);
+                                        const ds = data.datasets[0];
+                                        const value = ds.data[i];
+                                        return {
+                                            text: `${label} (${value}%)`, // Ex: "Presenças (98%)"
+                                            fillStyle: ds.backgroundColor[i],
+                                            strokeStyle: ds.borderColor[i],
+                                            lineWidth: ds.borderWidth,
+                                            hidden: isNaN(ds.data[i]) || meta.data[i].hidden,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    }
                 }
-            });
+            }
         });
+    });
     </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* Seu CSS completo com as correções para o alinhamento do formulário */
+/* Seu CSS otimizado para funcionar com Bootstrap */
 @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap');
 
 :root {
@@ -19,8 +19,6 @@
 
 * {
     font-family: "League Spartan", sans-serif;
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
 }
 
@@ -28,326 +26,250 @@ body {
     line-height: 1.6;
     color: var(--dark-grey);
     background: #028d16;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex-grow: 1;
+}
+
+/* Mantém o fundo escuro para a página de login e cadastro info */
+body.login, body.register {
+    background-color: #000000;
+}
+
+/* Estilos da Barra de Navegação (Cabeçalho) */
+.navbar {
+    background-color: #028d16;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.navbar-brand img {
+    height: 50px;
+}
+
+.navbar-brand h1 {
+    font-size: 1.7em;
+    color: var(--white);
+    margin: 0;
+}
+
+.nav-link, .navbar-text {
+    color: var(--white) !important;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* Seção Hero (Página Inicial) */
+.hero {
+    background-image: url(../images/imagemdeteste.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: var(--dark-grey);
+    flex-grow: 1;
+    display: flex;
     align-items: center;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    color: var(--white);
+/* ==================================================================== */
+/* ALTERAÇÃO IMPORTANTE: Removido 'font-size' fixo para permitir      */
+/* que as classes responsivas do Bootstrap funcionem corretamente.      */
+/* ==================================================================== */
+.hero h2 {
+    color: black;
 }
 
-.container {
-    max-width: 1200px;
+.hero p {
+    color: black;
+}
+/* ==================================================================== */
+
+/* Conteúdo Principal e Containers de Formulário */
+.dashboard-content {
+    padding: 50px 0;
     width: 100%;
-    margin: 0 auto;
-    padding: 20px;
 }
 
-
-.container h2 {
-    text-align: center;
-    color: #FFFFFF;
-    font-size: 30px;
+.form-container {
+    padding: 50px 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    background-image: url(../images/fundotest.png);
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
-.container a{
-    transition: 0.6s;
-}
-.container a:hover {
-    color: rgb(156, 156, 156);
-}
-.container-info{
+/* Container de informações da página de cadastro */
+.container-info {
     border: none;
     border-radius: 12px;
     padding: 25px;
-    max-width: 700px;
-    max-height: 600px;
     background-color: white;
+    max-width: 700px;
 }
-
 .container-info i {
     font-size: 15px;
 }
 .container-info h2 {
     color: black;
 }
-
 .container-info h4 {
     font-size: 25px;
     color: black;
 }
-.container-footer{
-    margin-left: 20px;
-    background-color: #028d16;
-    color: var(--white);
-    padding: 15px 0;
-    margin-top: auto;
-    width: 100%;
-    text-align: left;
-    box-shadow: 10px 10px 15px rgba(1, 0, 0, 0.5);
-}
-.backimg{
-    margin-left: 150px;
-}
-.logo{
-    display: flex;
-}
 
-
-.logo h1{
-    margin-top: 10px;
-}
-header {
-    background-color: #028d16;
-    color: var(--white);
-    padding: 4px 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    width: 100%;
-}
-
-header .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-header .logo img {
-    height: 50px;
-    margin-right: 10px;
-}
-
-header h1 {
-    font-size: 1.7em;
-    color: var(--white);
-}
-
-header nav a, header nav span {
-    color: var(--white);
-    font-size: 20px;
-    text-decoration: none;
-    margin-left: 20px;
-    font-weight: 700;
-}
-
-.hero {
-    background: var(--white);
-    color: var(--dark-grey);
-    padding: 80px 0;
-    text-align: center;
-    width: 100%;
-    flex-grow: 1;
-}
-.hero h2 {
-    line-height: 45px;
-    text-align: left;
-    font-size: 45px;
-    color: black;
-    margin-left: -100px;
-}
-
-.hero p {
-    color: black;
-    text-align: left;
-    font-size: 30px;
-    margin-left: -100px;
-    line-height: 30px;
-}
-.form-container, .dashboard-content {
-    padding: 50px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    width: 100%;
-}
-
-.dashboard-content h3{
-    color: black;
-}
-.dashboard-content i {
-    font-size: 15px;
-}
-.infocad{
-    font-weight: bold;
-    font-size: 18px;
-    margin-top: 10px;
-}
-.form-container .container {
-    background-color: var(--white);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    max-width: 800px; /* Aumentei um pouco para acomodar as opções */
-    width: 100%;
-}
-
-.form-group {
-    margin-bottom: 25px; /* Aumentei o espaço entre as perguntas */
-    text-align: left;
-}
-
-/* === INÍCIO DA ALTERAÇÃO 1: REGRA MODIFICADA === */
-/* Esta regra agora controla o alinhamento das opções (radio/checkbox) */
-.form-group label {
-    font-size: 1.1rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    cursor: pointer;
-}
-/* Para a label que é a pergunta principal (textarea/input de texto), mantemos a aparência anterior */
-.form-group label[for] {
-    font-size: 1.2rem;
-    font-weight: 700;
-    display: block; /* Aqui mantemos block */
-    margin-bottom: 8px;
-}
-/* Estilo para o texto da pergunta (parágrafo) */
-.form-group p {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 15px;
-}
-/* === FIM DA ALTERAÇÃO 1 === */
-
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--input-border);
-    border-radius: 6px;
-    font-size: 1.2em;
-}
-
+/* Estilos de Botão Personalizados */
 .btn-primary {
     background-color: #028d16;
     color: var(--white);
     padding: 14px 30px;
-    border: none;
     border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.05em;
     font-weight: 700;
-    display: block;
-    width: 100%;
-    text-align: center;
     text-decoration: none;
+    transition: 0.5s;
 }
-.btn-comeback{
-    text-decoration: none;
-    font-size: 18px;
-    color: #FFFFFF;
-    border: none;
-    cursor: pointer;
-    padding: 15px;
-    background-color: #028b16;
-    border-radius: 10px;
+
+.btn-primary:hover {
+    color: var(--white);
+    transform: scale(1.03);
+    box-shadow: 0px 0px 7px black;
 }
+
 .btn-secondary {
     background-color: #8B0000;
     color: var(--white);
     padding: 14px 30px;
     border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.05em;
     font-weight: 700;
-    display: inline-block;
-    margin-top: 15px;
     text-decoration: none;
+    transition: 0.5s;
 }
 
-.flashes {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
+.btn-secondary:hover {
+    color: var(--white);
+    transform: scale(1.03);
+    box-shadow: 0px 0px 10px black;
 }
 
-.flashes li {
-    padding: 12px;
-    margin-bottom: 8px;
+.btn-close-custom {
+    background-color: #dc3545;
+    color: var(--white);
+    padding: 14px 30px;
     border-radius: 6px;
-    border: 1px solid;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.5s;
 }
-.flashes .success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
-.flashes .danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-.flashes .warning { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
-.flashes .info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+.btn-close-custom:hover {
+    color: var(--white);
+    transform: scale(1.1);
+    box-shadow: 0px 0px 10px black;
+}
 
+.btn-comeback {
+    text-decoration: none;
+    font-size: 18px;
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    padding: 15px;
+    background-color: #8B0000;
+    border-radius: 10px;
+    transition: 0.6s;
+    display: inline-block;
+}
 
+/* Estilos do Card */
 .card {
-    background-color: var(--white);
-    padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    color: var(--dark-grey);
+    border: none;
 }
-.card.full-width { width: 100%; }
 
 .card h3 { 
     color: #028b16;
     margin-bottom: 18px; 
+    font-size: 20px;
 }
-
-.card a{
+.card h4 {
+    font-size: 20px;
+    color: #028b16;
+    margin-top: 10px;
+}
+.card p, .card a, .fandp, table th, table td {
     font-size: 20px;
 }
 
-.card p {
-    font-size: 20px;
-}
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 25px;
-}
-table th, table td {
-    border: 1px solid #e0e0e0;
-    padding: 12px;
-    text-align: left;
-    font-weight: bold;
-}
+/* Estilos de Tabela */
 table th {
-    font-size: 20px;
     background-color: #f0f8f0;
 }
 
+/* Estilos de Status */
 .status-aprovado { color: var(--status-aprovado); font-weight: bold; }
 .status-reprovado { color: var(--status-reprovado); font-weight: bold; }
 
 .final-status {
-    font-size: 1.2em; padding: 10px; border-radius: 5px;
-    text-align: center; margin-top: 20px;
+    font-size: 1.2em;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-top: 20px;
 }
-.final-status.status-aprovado { background-color: rgba(40, 167, 69, 0.1); border: 1px solid var(--status-aprovado); }
-.final-status.status-reprovado { background-color: rgba(220, 53, 69, 0.1); border: 1px solid var(--status-reprovado); }
+.final-status.status-aprovado { background-color: rgba(40, 167, 69, 0.1); border: 1px solid var(--status-aprovado); color: var(--status-aprovado); }
+.final-status.status-reprovado { background-color: rgba(220, 53, 69, 0.1); border: 1px solid var(--status-reprovado); color: var(--status-reprovado); }
 
 .reprovadas-list {
-    margin-top: 10px; padding: 10px; background-color: #f8d7da;
-    color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
 }
 
+/* Rodapé */
 footer {
     background-color: #028b16;
     color: var(--white);
-    padding: 4px 0;
+    padding: 15px 0;
     margin-top: auto;
     width: 100%;
-    text-align: left;
+    box-shadow: 10px 10px 15px rgba(1, 0, 0, 0.5);
 }
 
-/* === INÍCIO DA ALTERAÇÃO 2: NOVA REGRA ADICIONADA === */
-/* Corrige o tamanho dos inputs de radio e checkbox */
-.form-group input[type="radio"],
-.form-group input[type="checkbox"] {
-    width: auto;
-    height: auto;
-    padding: 0; /* Garante que não haverá padding interno */
-    margin-right: 10px;
-    accent-color: var(--primary-green);
+/* IDs e classes específicas */
+#ND, .form-container h2 {
+    color: #028b16;
 }
-/* === FIM DA ALTERAÇÃO 2 === */
+
+#FDS {
+    padding: 20px;
+    font-size: 20px;
+    text-align: left;
+}
+#cc, #details {
+    text-decoration: none;
+    color: black;
+    transition: 0.5s;
+}
+#cc:hover, #details:hover {
+    color: #028b16;
+}
+#attdados {
+    color: black;
+}
+#MCD {
+    font-size: 20px;
+    color: #000000;
+}
+.infocad {
+    text-decoration: none;
+    font-size: 18px;
+    margin-top: 10px;
+}

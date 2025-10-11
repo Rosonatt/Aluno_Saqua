@@ -4,103 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fazer Denúncia Anônima - AlunoSaqua</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header>
-        <div class="container">
-            <nav>
-                <a href="{{ url_for('aluno_dashboard') }}">Voltar ao Menu</a>
-                <a href="{{ url_for('logout') }}">Sair</a>
-            </nav>
-        </div>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                    <h1 class="ms-2">AlunoSaqua</h1>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav ms-auto">
+                        <a class="nav-link" href="{{ url_for('aluno_dashboard') }}">Voltar ao Menu</a>
+                        <a class="nav-link" href="{{ url_for('logout') }}">Sair</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
     </header>
+
     <main class="form-container">
-        <div class="container">
-            <h2>Nova Denúncia Anônima</h2>
-            <p>Use este formulário para reportar anonimamente situações de bullying ou problemas graves. Sua identidade é protegida. Quanto mais detalhes, melhor poderemos ajudar.</p>
-            
-            <form method="POST">
-                
-                <div class="form-group">
-                    <label for="descricao">1. **Descreva detalhadamente o que está acontecendo:**</label>
-                    <textarea id="descricao" name="descricao" rows="6" required placeholder="O quê (o ato), Onde (local exato), Quando (data e hora aproximada), Quem (pessoas envolvidas ou testemunhas)."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <p>2. **O problema envolve (o agressor principal ou grupo):**</p>
-                    <label><input type="checkbox" name="agressor_tipo[]" value="aluno"> Aluno(s)</label>
-                    <label><input type="checkbox" name="agressor_tipo[]" value="professor"> Professor(a) / Docente</label>
-                    <label><input type="checkbox" name="agressor_tipo[]" value="outro_funcionario"> Funcionário(a) da Escola (Não-docente)</label>
-                    <label><input type="checkbox" name="agressor_tipo[]" value="outro_externo"> Outra Pessoa (Externa à escola)</label>
-                </div>
-                
-                <div class="form-group">
-                    <p>3. **O ato pode ser classificado como (marque todos que se aplicam):**</p>
-                    <label><input type="checkbox" name="natureza[]" value="fisico"> Agressão Física</label>
-                    <label><input type="checkbox" name="natureza[]" value="verbal"> Ofensas Verbais / Psicológico (Insultos, Ameaças)</label>
-                    <label><input type="checkbox" name="natureza[]" value="social"> Social (Exclusão, Fofoca, Boato)</label>
-                    <label><input type="checkbox" name="natureza[]" value="virtual"> Virtual (Cyberbullying, Postagens de Ódio)</label>
-                    <label><input type="checkbox" name="natureza[]" value="patrimonial"> Dano ao Patrimônio / Furto</label>
-                    <label><input type="checkbox" name="natureza[]" value="outros"> Outro (Especificar na descrição)</label>
-                </div>
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 col-xl-8">
+                    <div class="bg-white p-4 p-md-5 rounded shadow">
+                        <h2 id="ND" class="text-center mb-3">Nova Denúncia Anônima</h2>
+                        <p class="text-center mb-4">Use este formulário para reportar anonimamente. Sua identidade é protegida. Quanto mais detalhes, melhor poderemos ajudar.</p>
+                        
+                        <form method="POST">
+                            <div class="mb-4 text-start">
+                                <label for="descricao" class="form-label fw-bold fs-5">1. Descreva detalhadamente o que está acontecendo:</label>
+                                <textarea id="descricao" name="descricao" rows="6" class="form-control" required placeholder="O quê (o ato), Onde (local exato), Quando (data e hora aproximada), Quem (pessoas envolvidas ou testemunhas)."></textarea>
+                            </div>
+                            
+                            {% set questions = [
+                                ('agressor_tipo[]', '2. O problema envolve (o agressor principal ou grupo):', ['Aluno(s)', 'Professor(a) / Docente', 'Funcionário(a) da Escola (Não-docente)', 'Outra Pessoa (Externa à escola)']),
+                                ('natureza[]', '3. O ato pode ser classificado como:', ['Agressão Física', 'Ofensas Verbais / Psicológico (Insultos, Ameaças)', 'Social (Exclusão, Fofoca, Boato)', 'Virtual (Cyberbullying, Postagens de Ódio)', 'Dano ao Patrimônio / Furto', 'Outro (Especificar na descrição)']),
+                                ('frequencia[]', '4. Com que frequência este incidente/situação tem ocorrido?', ['Apenas uma vez', 'De vez em quando (Ocasional)', 'Regularmente (Semanalmente ou mais)', 'Quase Diariamente']),
+                                ('local[]', '5. Onde o incidente ocorreu ou costuma ocorrer?', ['Sala de Aula', 'Pátio / Quadra / Área Externa', 'Banheiro', 'Corredores / Escadas', 'Online (Redes Sociais, Aplicativos)', 'Fora das dependências da escola']),
+                                ('reportado[]', '6. Essa situação já foi comunicada a algum responsável da escola antes?', ['Sim', 'Não', 'Não sei / Não tenho certeza']),
+                                ('vitima_conhecimento[]', '7. A vítima é...', ['Eu mesmo(a)', 'Um(a) amigo(a)', 'Um(a) colega de turma que observei', 'Alguém que não conheço (Vi o incidente)']),
+                                ('evidencia[]', '8. Você possui alguma evidência?', ['Sim, mas não anexarei aqui (Será solicitado se necessário).', 'Não, mas há testemunhas.', 'Não, e não há evidências ou testemunhas que eu saiba.']),
+                                ('gravidade[]', '9. Qual a sua percepção da gravidade do ato?', ['Baixa (Situação desconfortável, mas não ameaçadora)', 'Média (Causa angústia e/ou prejuízo)', 'Alta (Ameaça à integridade física/psicológica ou crime)'])
+                            ] %}
 
-                <div class="form-group">
-                    <p>4. **Com que frequência este incidente/situação tem ocorrido?**</p>
-                    <label><input type="checkbox" name="frequencia[]" value="unica"> Apenas uma vez</label>
-                    <label><input type="checkbox" name="frequencia[]" value="ocasional"> De vez em quando (Ocasional)</label>
-                    <label><input type="checkbox" name="frequencia[]" value="regular"> Regularmente (Semanalmente ou mais)</label>
-                    <label><input type="checkbox" name="frequencia[]" value="diaria"> Quase Diariamente</label>
-                </div>
+                            {% for name, question, options in questions %}
+                            <div class="mb-4 text-start">
+                                <p class="fw-bold fs-5">{{ question }}</p>
+                                {% for option in options %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="{{ name }}" value="{{ option|lower|replace(' ', '_')|replace('/', '_') }}" id="{{ name }}{{ loop.index }}">
+                                    <label class="form-check-label" for="{{ name }}{{ loop.index }}">{{ option }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
 
-                <div class="form-group">
-                    <p>5. **Onde o incidente ocorreu ou costuma ocorrer (Local principal)?**</p>
-                    <label><input type="checkbox" name="local[]" value="sala_aula"> Sala de Aula</label>
-                    <label><input type="checkbox" name="local[]" value="patio"> Pátio / Quadra / Área Externa</label>
-                    <label><input type="checkbox" name="local[]" value="banheiro"> Banheiro</label>
-                    <label><input type="checkbox" name="local[]" value="corredor"> Corredores / Escadas</label>
-                    <label><input type="checkbox" name="local[]" value="online"> Online (Redes Sociais, Aplicativos)</label>
-                    <label><input type="checkbox" name="local[]" value="fora_escola"> Fora das dependências da escola</label>
+                            <div class="mb-4 text-start">
+                                <label for="expectativa" class="form-label fw-bold fs-5">10. Qual resultado você espera da escola?</label>
+                                <textarea id="expectativa" name="expectativa" rows="3" class="form-control" placeholder="Ex: Que pare imediatamente, que o agressor seja advertido..."></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-sm-flex mt-4">
+                                <button type="submit" class="btn btn-primary flex-grow-1">Enviar Denúncia Anônima</button>
+                                <a href="{{ url_for('aluno_dashboard') }}" class="btn btn-secondary flex-grow-1">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <p>6. **Essa situação já foi comunicada a algum responsável da escola antes?**</p>
-                    <label><input type="checkbox" name="reportado[]" value="sim"> Sim</label>
-                    <label><input type="checkbox" name="reportado[]" value="nao"> Não</label>
-                    <label><input type="checkbox" name="reportado[]" value="nao_sei"> Não sei / Não tenho certeza</label>
-                </div>
-
-                <div class="form-group">
-                    <p>7. **A vítima é...**</p>
-                    <label><input type="checkbox" name="vitima_conhecimento[]" value="eu"> Eu mesmo(a)</label>
-                    <label><input type="checkbox" name="vitima_conhecimento[]" value="amigo"> Um(a) amigo(a)</label>
-                    <label><input type="checkbox" name="vitima_conhecimento[]" value="colega"> Um(a) colega de turma que observei</label>
-                    <label><input type="checkbox" name="vitima_conhecimento[]" value="nao_conheco"> Alguém que não conheço (Vi o incidente)</label>
-                </div>
-
-                <div class="form-group">
-                    <p>8. **Você possui alguma evidência (fotos, vídeos, prints, áudios) sobre o ocorrido?**</p>
-                    <label><input type="checkbox" name="evidencia[]" value="sim"> Sim, mas não anexarei aqui (Será solicitado se necessário).</label>
-                    <label><input type="checkbox" name="evidencia[]" value="nao"> Não, mas há testemunhas.</label>
-                    <label><input type="checkbox" name="evidencia[]" value="nenhuma"> Não, e não há evidências ou testemunhas que eu saiba.</label>
-                </div>
-
-                <div class="form-group">
-                    <p>9. **Qual a sua percepção da gravidade do ato?**</p>
-                    <label><input type="checkbox" name="gravidade[]" value="baixa"> Baixa (Situação desconfortável, mas não ameaçadora)</label>
-                    <label><input type="checkbox" name="gravidade[]" value="media"> Média (Causa angústia e/ou prejuízo)</label>
-                    <label><input type="checkbox" name="gravidade[]" value="alta"> Alta (Ameaça à integridade física/psicológica ou crime)</label>
-                </div>
-
-                <div class="form-group">
-                    <label for="expectativa">10. **Em poucas palavras, qual resultado você espera da escola ao lidar com esta denúncia?**</label>
-                    <textarea id="expectativa" name="expectativa" rows="3" placeholder="Ex: Que pare imediatamente, que o agressor seja advertido, que a vítima receba apoio."></textarea>
-                </div>
-                
-                <button type="submit" class="btn-primary">Enviar Denúncia Anônima</button>
-                <a href="{{ url_for('aluno_dashboard') }}" class="btn-secondary">Cancelar</a>
-            </form>
+            </div>
         </div>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
