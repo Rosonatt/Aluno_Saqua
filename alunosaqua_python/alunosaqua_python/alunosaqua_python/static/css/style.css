@@ -1,4 +1,4 @@
-/* Seu CSS original aqui... (Vou usar o que você me mandou no início) */
+/* Seu CSS completo com as correções para o alinhamento do formulário */
 @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap');
 
 :root {
@@ -39,7 +39,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .container {
-    
     max-width: 1200px;
     width: 100%;
     margin: 0 auto;
@@ -180,22 +179,40 @@ header nav a, header nav span {
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    max-width: 600px;
-    max-height: 3300px;
+    max-width: 800px; /* Aumentei um pouco para acomodar as opções */
     width: 100%;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 25px; /* Aumentei o espaço entre as perguntas */
     text-align: left;
 }
 
+/* === INÍCIO DA ALTERAÇÃO 1: REGRA MODIFICADA === */
+/* Esta regra agora controla o alinhamento das opções (radio/checkbox) */
 .form-group label {
-    font-size:1.2rem;
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 700;
+    font-size: 1.1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    cursor: pointer;
 }
+/* Para a label que é a pergunta principal (textarea/input de texto), mantemos a aparência anterior */
+.form-group label[for] {
+    font-size: 1.2rem;
+    font-weight: 700;
+    display: block; /* Aqui mantemos block */
+    margin-bottom: 8px;
+}
+/* Estilo para o texto da pergunta (parágrafo) */
+.form-group p {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+/* === FIM DA ALTERAÇÃO 1 === */
+
 
 .form-group input,
 .form-group textarea,
@@ -322,3 +339,15 @@ footer {
     width: 100%;
     text-align: left;
 }
+
+/* === INÍCIO DA ALTERAÇÃO 2: NOVA REGRA ADICIONADA === */
+/* Corrige o tamanho dos inputs de radio e checkbox */
+.form-group input[type="radio"],
+.form-group input[type="checkbox"] {
+    width: auto;
+    height: auto;
+    padding: 0; /* Garante que não haverá padding interno */
+    margin-right: 10px;
+    accent-color: var(--primary-green);
+}
+/* === FIM DA ALTERAÇÃO 2 === */

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atualizar Notas - AlunoSaqua</title>
+    <title>Atualizar Dados - AlunoSaqua</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -30,7 +30,7 @@
             <form method="POST" action="{{ url_for('professor_atualizar_dados', matricula=matricula, disciplina=disciplina) }}">
                 <div class="form-group">
                     <label for="faltas">Total de Faltas (Geral do Aluno):</label>
-                    <input type="number" id="faltas" name="faltas" value="{{ aluno.faltas }}" min="0" required>
+                    <input type="number" id="faltas" name="faltas" value="{{ aluno.faltas|length }}" min="0" required>
                 </div>
                 
                 <hr>

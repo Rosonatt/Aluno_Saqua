@@ -29,10 +29,10 @@
                 
                 <div class="form-group">
                     <p>2. **O problema envolve (o agressor principal ou grupo):**</p>
-                    <label><input type="radio" name="agressor_tipo" value="aluno" required> Aluno(s)</label>
-                    <label><input type="radio" name="agressor_tipo" value="professor"> Professor(a) / Docente</label>
-                    <label><input type="radio" name="agressor_tipo" value="outro_funcionario"> Funcionário(a) da Escola (Não-docente)</label>
-                    <label><input type="radio" name="agressor_tipo" value="outro_externo"> Outra Pessoa (Externa à escola)</label>
+                    <label><input type="checkbox" name="agressor_tipo[]" value="aluno"> Aluno(s)</label>
+                    <label><input type="checkbox" name="agressor_tipo[]" value="professor"> Professor(a) / Docente</label>
+                    <label><input type="checkbox" name="agressor_tipo[]" value="outro_funcionario"> Funcionário(a) da Escola (Não-docente)</label>
+                    <label><input type="checkbox" name="agressor_tipo[]" value="outro_externo"> Outra Pessoa (Externa à escola)</label>
                 </div>
                 
                 <div class="form-group">
@@ -47,49 +47,49 @@
 
                 <div class="form-group">
                     <p>4. **Com que frequência este incidente/situação tem ocorrido?**</p>
-                    <label><input type="radio" name="frequencia" value="unica" required> Apenas uma vez</label>
-                    <label><input type="radio" name="ocasional"> De vez em quando (Ocasional)</label>
-                    <label><input type="radio" name="regular"> Regularmente (Semanalmente ou mais)</label>
-                    <label><input type="radio" name="diaria"> Quase Diariamente</label>
+                    <label><input type="checkbox" name="frequencia[]" value="unica"> Apenas uma vez</label>
+                    <label><input type="checkbox" name="frequencia[]" value="ocasional"> De vez em quando (Ocasional)</label>
+                    <label><input type="checkbox" name="frequencia[]" value="regular"> Regularmente (Semanalmente ou mais)</label>
+                    <label><input type="checkbox" name="frequencia[]" value="diaria"> Quase Diariamente</label>
                 </div>
 
                 <div class="form-group">
                     <p>5. **Onde o incidente ocorreu ou costuma ocorrer (Local principal)?**</p>
-                    <label><input type="radio" name="local" value="sala_aula" required> Sala de Aula</label>
-                    <label><input type="radio" name="patio"> Pátio / Quadra / Área Externa</label>
-                    <label><input type="radio" name="banheiro"> Banheiro</label>
-                    <label><input type="radio" name="corredor"> Corredores / Escadas</label>
-                    <label><input type="radio" name="online"> Online (Redes Sociais, Aplicativos)</label>
-                    <label><input type="radio" name="fora_escola"> Fora das dependências da escola</label>
+                    <label><input type="checkbox" name="local[]" value="sala_aula"> Sala de Aula</label>
+                    <label><input type="checkbox" name="local[]" value="patio"> Pátio / Quadra / Área Externa</label>
+                    <label><input type="checkbox" name="local[]" value="banheiro"> Banheiro</label>
+                    <label><input type="checkbox" name="local[]" value="corredor"> Corredores / Escadas</label>
+                    <label><input type="checkbox" name="local[]" value="online"> Online (Redes Sociais, Aplicativos)</label>
+                    <label><input type="checkbox" name="local[]" value="fora_escola"> Fora das dependências da escola</label>
                 </div>
 
                 <div class="form-group">
                     <p>6. **Essa situação já foi comunicada a algum responsável da escola antes?**</p>
-                    <label><input type="radio" name="reportado" value="sim" required> Sim</label>
-                    <label><input type="radio" name="nao"> Não</label>
-                    <label><input type="radio" name="nao_sei"> Não sei / Não tenho certeza</label>
+                    <label><input type="checkbox" name="reportado[]" value="sim"> Sim</label>
+                    <label><input type="checkbox" name="reportado[]" value="nao"> Não</label>
+                    <label><input type="checkbox" name="reportado[]" value="nao_sei"> Não sei / Não tenho certeza</label>
                 </div>
 
                 <div class="form-group">
                     <p>7. **A vítima é...**</p>
-                    <label><input type="radio" name="vitima_conhecimento" value="eu" required> Eu mesmo(a)</label>
-                    <label><input type="radio" name="amigo"> Um(a) amigo(a)</label>
-                    <label><input type="radio" name="colega"> Um(a) colega de turma que observei</label>
-                    <label><input type="radio" name="nao_conheco"> Alguém que não conheço (Vi o incidente)</label>
+                    <label><input type="checkbox" name="vitima_conhecimento[]" value="eu"> Eu mesmo(a)</label>
+                    <label><input type="checkbox" name="vitima_conhecimento[]" value="amigo"> Um(a) amigo(a)</label>
+                    <label><input type="checkbox" name="vitima_conhecimento[]" value="colega"> Um(a) colega de turma que observei</label>
+                    <label><input type="checkbox" name="vitima_conhecimento[]" value="nao_conheco"> Alguém que não conheço (Vi o incidente)</label>
                 </div>
 
                 <div class="form-group">
                     <p>8. **Você possui alguma evidência (fotos, vídeos, prints, áudios) sobre o ocorrido?**</p>
-                    <label><input type="radio" name="evidencia" value="sim" required> Sim, mas não anexarei aqui (Será solicitado se necessário).</label>
-                    <label><input type="radio" name="nao"> Não, mas há testemunhas.</label>
-                    <label><input type="radio" name="nenhuma"> Não, e não há evidências ou testemunhas que eu saiba.</label>
+                    <label><input type="checkbox" name="evidencia[]" value="sim"> Sim, mas não anexarei aqui (Será solicitado se necessário).</label>
+                    <label><input type="checkbox" name="evidencia[]" value="nao"> Não, mas há testemunhas.</label>
+                    <label><input type="checkbox" name="evidencia[]" value="nenhuma"> Não, e não há evidências ou testemunhas que eu saiba.</label>
                 </div>
 
                 <div class="form-group">
                     <p>9. **Qual a sua percepção da gravidade do ato?**</p>
-                    <label><input type="radio" name="gravidade" value="baixa" required> Baixa (Situação desconfortável, mas não ameaçadora)</label>
-                    <label><input type="radio" name="media"> Média (Causa angústia e/ou prejuízo)</label>
-                    <label><input type="radio" name="alta"> Alta (Ameaça à integridade física/psicológica ou crime)</label>
+                    <label><input type="checkbox" name="gravidade[]" value="baixa"> Baixa (Situação desconfortável, mas não ameaçadora)</label>
+                    <label><input type="checkbox" name="gravidade[]" value="media"> Média (Causa angústia e/ou prejuízo)</label>
+                    <label><input type="checkbox" name="gravidade[]" value="alta"> Alta (Ameaça à integridade física/psicológica ou crime)</label>
                 </div>
 
                 <div class="form-group">
