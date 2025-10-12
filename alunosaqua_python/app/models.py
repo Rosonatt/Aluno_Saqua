@@ -16,7 +16,10 @@ HOLIDAYS_2025 = [
     '2025-05-01', # Dia do Trabalho
     '2025-06-19', # Corpus Christi
     '2025-09-08', # N. Sra. de Nazareth (Municipal - Saquarema)
+    '2025-10-15', # Dia do Professor
+    '2025-10-28', # Dia do Servidor Público
     '2025-11-15', # Proclamação da República
+    '2025-11-20', # Dia da Consciência Negra
     '2025-12-25', # Natal
 ]
 
