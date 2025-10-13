@@ -149,7 +149,7 @@ def presenca():
         
     provas_disciplina = aluno_data.get('provas', {}).get(disciplina_sel, [])
     
-    dias_nao_letivos = HOLIDAYS_2025 # Feriados
+    dias_nao_letivos = HOLIDAYS_2025
 
     proximos_feriados = []
     hoje_str = datetime.now().strftime('%Y-%m-%d')
@@ -237,6 +237,13 @@ def dashboard():
     if not prof_data: return redirect(url_for('main.logout'))
 
     disciplinas = prof_data['disciplinas']
+    
+    # Adiciona a verificação de lista vazia para evitar IndexError
+    if not disciplinas:
+        flash('Seu perfil não tem disciplinas registradas. Contate o administrador.', 'warning')
+        return render_template('professor_dashboard.html', alunos=[], disciplinas=[], disciplina_selecionada='N/A', NOTA_MINIMA=NOTA_MINIMA_APROVACAO_MATERIA, MAX_FALTAS_PERMITIDAS=MAX_FALTAS_PERMITIDAS)
+
+
     disciplina_sel = request.args.get('disciplina', disciplinas[0])
     alunos_filtrados = []
     for matricula, aluno_data in USERS['alunos'].items():
@@ -338,18 +345,13 @@ def definir_urgencia(denuncia_id):
         flash('Urgência da denúncia atualizada.', 'success')
     return redirect(url_for('psicopedagogo.dashboard'))
 
-# No arquivo app/routes.py, substitua a função denuncia_detalhe:
-
 @psicopedagogo_bp.route('/denuncia/<denuncia_id>')
-def denuncia_detalhe(denuncia_id): # Nome do argumento CORRIGIDO: Agora usa 'denuncia_id'
+def denuncia_detalhe(denuncia_detalhe_id):
     if session.get('user_type') != 'psicopedagogo': return redirect(url_for('main.login'))
-    
-    denuncia = DENUNCIAS.get(denuncia_id)
+    denuncia = DENUNCIAS.get(denuncia_detalhe_id)
     if not denuncia: return redirect(url_for('psicopedagogo.dashboard'))
     aluno = USERS['alunos'].get(denuncia['aluno_matricula'], {})
-    
-    # Renderiza o template, usando a variável corrigida
-    return render_template('denuncia_detalhe.html', denuncia_id=denuncia_id, denuncia=denuncia, aluno=aluno, dados_calculados=calcular_dados_aluno(aluno) if aluno else {})
+    return render_template('denuncia_detalhe.html', denuncia_id=denuncia_detalhe_id, denuncia=denuncia, aluno=aluno, dados_calculados=calcular_dados_aluno(aluno) if aluno else {})
 
 @psicopedagogo_bp.route('/fechar_caso/<denuncia_id>', methods=['POST'])
 def fechar_caso(denuncia_id):
