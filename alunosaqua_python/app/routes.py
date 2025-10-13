@@ -81,11 +81,7 @@ def notas():
     aluno_data = USERS['alunos'].get(session['username'])
     if not aluno_data: return redirect(url_for('main.logout'))
 
-    return render_template('aluno_notas.html', aluno=aluno_data, dados_calculados=calcular_dados_aluno(aluno_data), config={'NOTA_MINIMA_APROVACAO_MATERIA': NOTA_MINIMA_APROVACAO_MATERIA}) # Passando config aqui para não quebrar notas.html
-
-# No arquivo app/routes.py
-
-# No arquivo app/routes.py
+    return render_template('aluno_notas.html', aluno=aluno_data, dados_calculados=calcular_dados_aluno(aluno_data), config={'NOTA_MINIMA_APROVACAO_MATERIA': NOTA_MINIMA_APROVACAO_MATERIA})
 
 @aluno_bp.route('/presenca')
 def presenca():
@@ -102,7 +98,7 @@ def presenca():
     except (ValueError, TypeError):
         ano_atual, mes_atual = datetime.now().year, datetime.now().month
 
-    # Lógica para navegação do calendário (inalterada)
+    # Lógica para navegação do calendário
     primeiro_dia_do_mes = datetime(ano_atual, mes_atual, 1)
     mes_anterior_data = primeiro_dia_do_mes - timedelta(days=1)
     ano_anterior, mes_anterior = mes_anterior_data.year, mes_anterior_data.month
@@ -113,23 +109,47 @@ def presenca():
 
     dados = calcular_dados_aluno(aluno_data)
     
-    # Prepara o calendário do mês e os dados de falta/prova
+    # 1. Obter e Validar a Disciplina Selecionada
+    disciplinas_aluno = sorted(aluno_data.get('notas', {}).keys())
+    
+    default_discipline = disciplinas_aluno[0] if disciplinas_aluno else 'Matemática'
+    disciplina_sel = request.args.get('disciplina', default_discipline)
+    
+    # 2. CÁLCULO ESTATÍSTICO DA DISCIPLINA SELECIONADA
+    faltas_disciplina_total = dados['detalhe_faltas_por_materia'].get(disciplina_sel, {'total': 0, 'justificadas': 0})
+    num_faltas_disciplina = faltas_disciplina_total['total']
+    num_justificadas_disciplina = faltas_disciplina_total['justificadas']
+    num_nao_justificadas_disciplina = num_faltas_disciplina - num_justificadas_disciplina
+    
+    status_disciplina_faltas = 'REPROVADO POR FALTAS' if num_nao_justificadas_disciplina > MAX_FALTAS_PERMITIDAS else 'APROVADO'
+    
+    subject_stats={
+        'total_faltas': num_faltas_disciplina,
+        'justificadas': num_justificadas_disciplina,
+        'nao_justificadas': num_nao_justificadas_disciplina,
+        'status': status_disciplina_faltas
+    }
+    
+    # 3. Prepara dados para o calendário
     cal = calendar.Calendar()
     cal.setfirstweekday(calendar.SUNDAY)
     semanas_do_mes = cal.monthdatescalendar(ano_atual, mes_atual)
     
-    # ====================================================================
-    # CORREÇÃO CRÍTICA APLICADA AQUI: Extraindo apenas a STRING da data
-    # ====================================================================
+    # Consolida todas as faltas (para o gráfico global)
     todas_as_faltas = set()
     for faltas_obj_list in aluno_data.get('faltas', {}).values():
         for falta_dict in faltas_obj_list:
-            # Adiciona APENAS a string da data ('2025-10-01') ao set
             todas_as_faltas.add(falta_dict['date'])
-    # ====================================================================
     
-    # Prepara a lista de feriados (Dias Não Letivos) para o filtro
-    dias_nao_letivos = HOLIDAYS_2025
+    # Faltas para marcar no calendário (SÓ DA DISCIPLINA SELECIONADA)
+    faltas_disciplina = set()
+    if disciplina_sel:
+        for falta_dict in aluno_data.get('faltas', {}).get(disciplina_sel, []):
+            faltas_disciplina.add(falta_dict['date'])
+        
+    provas_disciplina = aluno_data.get('provas', {}).get(disciplina_sel, [])
+    
+    dias_nao_letivos = HOLIDAYS_2025 # Feriados
 
     proximos_feriados = []
     hoje_str = datetime.now().strftime('%Y-%m-%d')
@@ -158,7 +178,14 @@ def presenca():
         todas_as_faltas=todas_as_faltas,
         dias_nao_letivos=dias_nao_letivos,
         proximos_feriados=proximos_feriados_ordenados,
-        MAX_FALTAS_PERMITIDAS=MAX_FALTAS_PERMITIDAS
+        MAX_FALTAS_PERMITIDAS=MAX_FALTAS_PERMITIDAS,
+        
+        # VARIÁVEIS CHAVE PASSADAS AO TEMPLATE
+        faltas_disciplina=faltas_disciplina, 
+        provas_disciplina=provas_disciplina,
+        disciplina_selecionada=disciplina_sel,
+        disciplinas_aluno=disciplinas_aluno,
+        subject_stats=subject_stats # Variável agora está sendo passada
     )
 
 @aluno_bp.route('/denunciar', methods=['GET', 'POST'])
@@ -220,10 +247,11 @@ def dashboard():
             'nota1': info_disciplina.get('nota1', 'N/A'),
             'nota2': info_disciplina.get('nota2', 'N/A'),
             'media': info_disciplina.get('media', 'N/A'),
+            'faltas_nao_justificadas': dados['num_nao_justificadas'], 
             'faltas': dados['faltas_por_materia'].get(disciplina_sel, 0)
         }
         alunos_filtrados.append(aluno_info)
-    return render_template('professor_dashboard.html', alunos=alunos_filtrados, disciplinas=disciplinas, disciplina_selecionada=disciplina_sel, NOTA_MINIMA=NOTA_MINIMA_APROVACAO_MATERIA)
+    return render_template('professor_dashboard.html', alunos=alunos_filtrados, disciplinas=disciplinas, disciplina_selecionada=disciplina_sel, NOTA_MINIMA=NOTA_MINIMA_APROVACAO_MATERIA, MAX_FALTAS_PERMITIDAS=MAX_FALTAS_PERMITIDAS)
 
 @professor_bp.route('/atualizar-dados/<matricula>', methods=['GET', 'POST'])
 def atualizar_dados(matricula):
@@ -256,13 +284,42 @@ def atualizar_dados(matricula):
                 flash('Valor inválido para as notas. Use apenas números.', 'danger')
 
         # Lógica de Faltas (processamento da string de datas)
-        # Omitindo o processamento complexo de justificativa para esta resposta, focando no crash.
-        # Assumindo que a lógica de POST do JS dinâmico está sendo tratada.
+        num_faltas_count = int(request.form.get('num_faltas_count', 0))
+        novas_faltas = []
+        datas_invalidas = []
+        
+        for i in range(num_faltas_count):
+            data_str = request.form.get(f'falta_data_{i}', '').strip()
+            is_justified = request.form.get(f'falta_justificada_{i}') == 'True'
+            
+            if data_str:
+                try:
+                    datetime.strptime(data_str, '%Y-%m-%d')
+                    novas_faltas.append({'date': data_str, 'justified': is_justified})
+                except ValueError:
+                    datas_invalidas.append(data_str)
+            
+        aluno_data.setdefault('faltas', {})[disciplina] = novas_faltas
+        
+        if novas_faltas:
+            flash(f'{len(novas_faltas)} falta(s) em {disciplina} foram salvas/atualizadas. {len(datas_invalidas)} datas ignoradas.', 'success')
+        
+        if datas_invalidas:
+            flash(f'As seguintes datas foram ignoradas por estarem em formato inválido: {", ".join(datas_invalidas)}', 'warning')
+        
         return redirect(url_for('professor.dashboard', disciplina=disciplina))
         
+    # Lógica GET (Prepara dados para pré-preenchimento)
+    faltas_da_disciplina = aluno_data.get('faltas', {}).get(disciplina, [])
+
     if disciplina not in aluno_data.get('notas', {}):
         aluno_data.setdefault('notas', {})[disciplina] = []
-    return render_template('professor_atualizar_dados.html', aluno=aluno_data, matricula=matricula, disciplina=disciplina)
+    return render_template('professor_atualizar_dados.html', 
+        aluno=aluno_data, 
+        matricula=matricula, 
+        disciplina=disciplina,
+        faltas_da_disciplina=faltas_da_disciplina
+    )
 
 
 # --- ROTAS DO PSICOPEDAGOGO ---
@@ -281,12 +338,17 @@ def definir_urgencia(denuncia_id):
         flash('Urgência da denúncia atualizada.', 'success')
     return redirect(url_for('psicopedagogo.dashboard'))
 
+# No arquivo app/routes.py, substitua a função denuncia_detalhe:
+
 @psicopedagogo_bp.route('/denuncia/<denuncia_id>')
-def denuncia_detalhe(denuncia_id):
+def denuncia_detalhe(denuncia_id): # Nome do argumento CORRIGIDO: Agora usa 'denuncia_id'
     if session.get('user_type') != 'psicopedagogo': return redirect(url_for('main.login'))
+    
     denuncia = DENUNCIAS.get(denuncia_id)
     if not denuncia: return redirect(url_for('psicopedagogo.dashboard'))
     aluno = USERS['alunos'].get(denuncia['aluno_matricula'], {})
+    
+    # Renderiza o template, usando a variável corrigida
     return render_template('denuncia_detalhe.html', denuncia_id=denuncia_id, denuncia=denuncia, aluno=aluno, dados_calculados=calcular_dados_aluno(aluno) if aluno else {})
 
 @psicopedagogo_bp.route('/fechar_caso/<denuncia_id>', methods=['POST'])
@@ -295,6 +357,4 @@ def fechar_caso(denuncia_id):
     if denuncia_id in DENUNCIAS:
         DENUNCIAS[denuncia_id]['status'] = 'fechada'
         flash('Caso fechado com sucesso.', 'success')
-    else:
-        flash('Denúncia não encontrada.', 'danger')
     return redirect(url_for('psicopedagogo.dashboard'))

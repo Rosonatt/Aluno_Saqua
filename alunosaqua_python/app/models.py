@@ -16,21 +16,18 @@ HOLIDAYS_2025 = [
     '2025-05-01', # Dia do Trabalho
     '2025-06-19', # Corpus Christi
     '2025-09-08', # N. Sra. de Nazareth (Municipal - Saquarema)
-    '2025-10-15', # Dia do Professor
-    '2025-10-28', # Dia do Servidor Público
     '2025-11-15', # Proclamação da República
-    '2025-11-20', # Dia da Consciência Negra
     '2025-12-25', # Natal
 ]
 
-# --- BANCO DE DADOS SIMULADO (ESTRUTURA ATUALIZADA) ---
+# --- BANCO DE DADOS SIMULADO ---
 USERS = {
     'alunos': {
         '202411251': {'password': generate_password_hash('aluno'), 'nome': 'Rosonatt Ferreira Ramos', 'turma': '9A', 'notas': {'Matemática': [8, 7], 'Português': [9, 8], 'História': [7, 7], 'Ciências': [10, 9]}, 
-            'faltas': {'Matemática': [{'date': '2025-10-01', 'justified': False}], 'Português': [{'date': '2025-10-02', 'justified': True}, {'date': '2025-09-15', 'justified': False}]}, 
+            'faltas': {'Matemática': [{'date': '2025-10-01', 'justified': False}], 'Português': [{'date': '2025-10-02', 'justified': False}, {'date': '2025-09-15', 'justified': False}]}, 
             'provas': {'Matemática': ['2025-10-06']}},
         '202411281': {'password': generate_password_hash('aluno'), 'nome': 'Ryan Guiwison', 'turma': '8B', 'notas': {'Matemática': [5, 4], 'Português': [6, 7.5], 'Artes': [5, 5]}, 
-            'faltas': {'Matemática': [{'date': '2025-10-03', 'justified': False}], 'Português': [{'date': '2025-09-08', 'justified': True}], 'Artes': [{'date': '2025-08-10', 'justified': False}, {'date': '2025-08-15', 'justified': False}, {'date': '2025-08-16', 'justified': False}, {'date': '2025-08-17', 'justified': True}, {'date': '2025-08-18', 'justified': False}]}, 
+            'faltas': {'Matemática': [{'date': '2025-10-03', 'justified': False}, {'date': '2025-10-06', 'justified': False}, {'date': '2025-10-07', 'justified': False}], 'Português': [{'date': '2025-09-08', 'justified': False}, {'date': '2025-09-09', 'justified': False}], 'Artes': [{'date': '2025-08-10', 'justified': False}, {'date': '2025-08-15', 'justified': False}, {'date': '2025-08-16', 'justified': False}, {'date': '2025-08-17', 'justified': False}, {'date': '2025-08-18', 'justified': False}]}, 
             'provas': {}},
         '202411333': {'password': generate_password_hash('aluno'), 'nome': 'Bruno Alves', 'turma': '7C', 'notas': {'Artes': [5, 4], 'Português': [7, 6.5]}, 'faltas': {'Artes': [{'date': '2025-09-11', 'justified': False}]}, 'provas': {}},
         '202411325': {'password': generate_password_hash('aluno'), 'nome': 'Natalia Crys Cardoso', 'turma': '9A', 'notas': {'Inglês': [8.5, 9], 'Física': [6.5, 7.5]}, 'faltas': {}, 'provas': {}},
@@ -64,35 +61,52 @@ USERS = {
 }
 DENUNCIAS = {}
 
-# --- FUNÇÃO AUXILIAR DE CÁLCULOS (ATUALIZADA) ---
+# --- FUNÇÃO AUXILIAR DE CÁLCULOS ---
 def calcular_dados_aluno(aluno_data):
-    # Faltas por Matéria
+    
     faltas_por_materia = {}
-    num_justificadas = 0
+    num_justificadas_total = 0
     num_faltas_total = 0
+    porcentagem_faltas = 0
+    detalhe_faltas_por_materia = {}
     
     for materia, faltas_list in aluno_data.get('faltas', {}).items():
-        # Conta o total para a matéria
-        contagem = len(faltas_list)
-        faltas_por_materia[materia] = contagem
-        num_faltas_total += contagem
-        
-        # Conta quantas são justificadas
+        contagem_faltas_materia = len(faltas_list)
+        contagem_justificadas_materia = 0
+
+        # Conta quantas são justificadas NA MATÉRIA
         for falta in faltas_list:
             if isinstance(falta, dict) and falta.get('justified', False):
-                num_justificadas += 1
+                contagem_justificadas_materia += 1
 
-    # Regra de reprovação (mantida no total de faltas, sem contar justificadas)
-    porcentagem_faltas = (num_faltas_total / TOTAL_AULAS_PADRAO) * 100 if TOTAL_AULAS_PADRAO > 0 else 0
-    status_faltas = 'REPROVADO POR FALTAS' if num_faltas_total > MAX_FALTAS_PERMITIDAS else 'APROVADO'
+        # Armazena o detalhe por matéria
+        detalhe_faltas_por_materia[materia] = {
+            'total': contagem_faltas_materia,
+            'justificadas': contagem_justificadas_materia
+        }
+        
+        # Preenche o dicionário que a rota do professor precisa
+        faltas_por_materia[materia] = contagem_faltas_materia
+        
+        # Soma para o total anual
+        num_faltas_total += contagem_faltas_materia
+        num_justificadas_total += contagem_justificadas_materia
+        
+    num_nao_justificadas = num_faltas_total - num_justificadas_total
+    
+    # Regra de reprovação (usa FALTAS NÃO JUSTIFICADAS)
+    status_faltas = 'REPROVADO POR FALTAS' if num_nao_justificadas > MAX_FALTAS_PERMITIDAS else 'APROVADO'
     
     materia_mais_faltas = None
     maior_num_faltas = 0
-    if faltas_por_materia:
-        materia_mais_faltas = max(faltas_por_materia, key=faltas_por_materia.get)
-        maior_num_faltas = faltas_por_materia[materia_mais_faltas]
+    if detalhe_faltas_por_materia:
+        # Pega a matéria que tem o maior valor de 'total'
+        materia_mais_faltas = max(detalhe_faltas_por_materia, key=lambda m: detalhe_faltas_por_materia[m]['total'])
+        maior_num_faltas = detalhe_faltas_por_materia[materia_mais_faltas]['total']
 
-    # ... (Restante do cálculo de notas inalterado)
+    # Cálculo da Porcentagem de Faltas
+    porcentagem_faltas = (num_faltas_total / TOTAL_AULAS_PADRAO) * 100 if TOTAL_AULAS_PADRAO > 0 else 0
+    
     medias_materias = {}
     materias_reprovadas = []
     for disciplina, notas_list in aluno_data.get('notas', {}).items():
@@ -112,8 +126,10 @@ def calcular_dados_aluno(aluno_data):
         
     return {
         'num_faltas': num_faltas_total, 
-        'num_justificadas': num_justificadas, # Novo campo
-        'faltas_por_materia': faltas_por_materia,
+        'num_justificadas': num_justificadas_total, 
+        'num_nao_justificadas': num_nao_justificadas, 
+        'faltas_por_materia': faltas_por_materia, 
+        'detalhe_faltas_por_materia': detalhe_faltas_por_materia, 
         'porcentagem_faltas': round(porcentagem_faltas, 2),
         'status_faltas': status_faltas, 'medias_materias': medias_materias,
         'materias_reprovadas': materias_reprovadas, 'status_geral_notas': status_geral_notas,

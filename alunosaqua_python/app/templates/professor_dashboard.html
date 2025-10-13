@@ -155,11 +155,17 @@
                                         {% elif aluno.media is number %}
                                             <strong class="text-success">{{ aluno.media }}</strong>
                                         {% else %}
-                                            <span class="text-secondary">{{ aluno.media }}</span> {# N/A agora é cinza #}
+                                            <span class="text-secondary">{{ aluno.media }}</span>
                                         {% endif %}
                                     </td>
                                     
-                                    <td>{{ aluno.faltas }}</td>
+                                    <td>
+                                        {% if aluno.faltas_nao_justificadas > MAX_FALTAS_PERMITIDAS %}
+                                            <strong class="text-danger">{{ aluno.faltas }}</strong>
+                                        {% else %}
+                                            {{ aluno.faltas }}
+                                        {% endif %}
+                                    </td>
                                     
                                     <td>
                                         <a id="cc" href="{{ url_for('professor.atualizar_dados', matricula=aluno.matricula, disciplina=disciplina_selecionada) }}">Editar Notas/Faltas <i class="fa-solid fa-pen-to-square"></i></a>

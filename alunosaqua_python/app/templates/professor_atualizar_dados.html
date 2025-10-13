@@ -87,7 +87,7 @@
                     
                     <div class="mb-3 input-group-styled">
                         <label for="num_faltas" class="form-label fw-bold">1. Total de Faltas na Disciplina:</label>
-                        <input type="number" id="num_faltas" name="num_faltas_count" class="form-control" min="0" value="{{ aluno.faltas.get(disciplina, [])|length }}" required oninput="generateDateFields(this.value, '{{ disciplina }}')">
+                        <input type="number" id="num_faltas" name="num_faltas_count" class="form-control" min="0" value="{{ faltas_da_disciplina|length }}" oninput="generateDateFields(this.value, '{{ disciplina }}')">
                         <small class="text-muted">Altere o número acima para exibir os campos de data.</small>
                     </div>
 
@@ -108,7 +108,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Dados de falta atuais injetados pelo Flask/Jinja2 (Lista de objetos {date: '...', justified: T/F})
-        const initialFaltasData = JSON.parse('{{ aluno.faltas.get(disciplina, []) | tojson | safe }}');
+        const initialFaltasData = JSON.parse('{{ faltas_da_disciplina | tojson | safe }}'.replace(/&quot;/g, '"'));
         const container = document.getElementById('dateFieldsContainer');
         const numFaltasInput = document.getElementById('num_faltas');
 
@@ -117,14 +117,9 @@
             count = parseInt(count) || 0;
             container.innerHTML = ''; // Limpa campos antigos
 
-            // Mapeia os dados existentes para a posição correta no novo array de inputs
-            const existingMap = {};
-            initialFaltasData.forEach((item, index) => {
-                existingMap[index] = item;
-            });
-
             for (let i = 0; i < count; i++) {
-                const existingData = existingMap[i] || { date: '', justified: false };
+                // Tenta usar dados existentes, se disponíveis
+                const existingData = initialFaltasData[i] || { date: '', justified: false };
                 const isJustified = existingData.justified ? 'checked' : '';
                 const dateValue = existingData.date;
                 
@@ -155,14 +150,14 @@
             }
         }
         
-        // CORREÇÃO APLICADA AQUI: Chama a função uma vez ao carregar a página
+        // CORREÇÃO APLICADA AQUI: Inicializa no carregamento e remove a conversão incorreta.
         document.addEventListener('DOMContentLoaded', () => {
-             // 1. Inicializa os popovers
             const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
             const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
             
-            // 2. Gera os campos de data iniciais (mesmo que o count seja 0)
-            generateDateFields(numFaltasInput.value, '{{ disciplina }}');
+            // Garante que o valor inicial seja o count de faltas (0 ou mais)
+            const initialCount = parseInt(numFaltasInput.value) || 0;
+            generateDateFields(initialCount, '{{ disciplina }}');
         });
 
     </script>
