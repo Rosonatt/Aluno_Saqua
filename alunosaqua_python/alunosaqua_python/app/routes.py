@@ -346,12 +346,22 @@ def definir_urgencia(denuncia_id):
     return redirect(url_for('psicopedagogo.dashboard'))
 
 @psicopedagogo_bp.route('/denuncia/<denuncia_id>')
-def denuncia_detalhe(denuncia_detalhe_id):
-    if session.get('user_type') != 'psicopedagogo': return redirect(url_for('main.login'))
-    denuncia = DENUNCIAS.get(denuncia_detalhe_id)
-    if not denuncia: return redirect(url_for('psicopedagogo.dashboard'))
+def denuncia_detalhe(denuncia_id):
+    if session.get('user_type') != 'psicopedagogo':
+        return redirect(url_for('main.login'))
+
+    denuncia = DENUNCIAS.get(denuncia_id)
+    if not denuncia:
+        return redirect(url_for('psicopedagogo.dashboard'))
+
     aluno = USERS['alunos'].get(denuncia['aluno_matricula'], {})
-    return render_template('denuncia_detalhe.html', denuncia_id=denuncia_detalhe_id, denuncia=denuncia, aluno=aluno, dados_calculados=calcular_dados_aluno(aluno) if aluno else {})
+    return render_template(
+        'denuncia_detalhe.html',
+        denuncia_id=denuncia_id,
+        denuncia=denuncia,
+        aluno=aluno,
+        dados_calculados=calcular_dados_aluno(aluno) if aluno else {}
+    )
 
 @psicopedagogo_bp.route('/fechar_caso/<denuncia_id>', methods=['POST'])
 def fechar_caso(denuncia_id):
