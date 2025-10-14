@@ -185,7 +185,7 @@ def presenca():
         provas_disciplina=provas_disciplina,
         disciplina_selecionada=disciplina_sel,
         disciplinas_aluno=disciplinas_aluno,
-        subject_stats=subject_stats # Variável agora está sendo passada
+        subject_stats=subject_stats # Variável corrigida e passada
     )
 
 @aluno_bp.route('/denunciar', methods=['GET', 'POST'])
@@ -347,21 +347,11 @@ def definir_urgencia(denuncia_id):
 
 @psicopedagogo_bp.route('/denuncia/<denuncia_id>')
 def denuncia_detalhe(denuncia_id):
-    if session.get('user_type') != 'psicopedagogo':
-        return redirect(url_for('main.login'))
-
+    if session.get('user_type') != 'psicopedagogo': return redirect(url_for('main.login'))
     denuncia = DENUNCIAS.get(denuncia_id)
-    if not denuncia:
-        return redirect(url_for('psicopedagogo.dashboard'))
-
+    if not denuncia: return redirect(url_for('psicopedagogo.dashboard'))
     aluno = USERS['alunos'].get(denuncia['aluno_matricula'], {})
-    return render_template(
-        'denuncia_detalhe.html',
-        denuncia_id=denuncia_id,
-        denuncia=denuncia,
-        aluno=aluno,
-        dados_calculados=calcular_dados_aluno(aluno) if aluno else {}
-    )
+    return render_template('denuncia_detalhe.html', denuncia_id=denuncia_id, denuncia=denuncia, aluno=aluno, dados_calculados=calcular_dados_aluno(aluno) if aluno else {})
 
 @psicopedagogo_bp.route('/fechar_caso/<denuncia_id>', methods=['POST'])
 def fechar_caso(denuncia_id):
