@@ -53,6 +53,29 @@
         .calendar__number--exam-mark { font-size: 10px; padding: 3px; border-radius: 3px; font-weight: 600; background-color: #ff9800; color: white; position: absolute; bottom: 2px; left: 2px; }
         .calendar__number--holiday-icon { position: absolute; top: 2px; right: 2px; font-size: 0.7em; color: var(--primary-green); }
         .day-number { font-weight: bold; }
+        
+        /* Estilo para o seletor de disciplina */
+        .disciplina-selector-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .disciplina-selector-label {
+            font-weight: 600;
+            color: var(--dark-grey);
+            margin-bottom: 8px;
+        }
+        
+        /* Estilo para o mês no centro do calendário - CORRIGIDO */
+        .calendar-month-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark-grey) !important; /* Cor escura para contraste com fundo branco */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -75,6 +98,30 @@
     <main class="dashboard-content">
         <div class="container">
             <h2 class="text-center text-white mb-4">MINHA PRESENÇA</h2>
+            
+            <!-- Seletor de Disciplina - FORA DO CALENDÁRIO -->
+            <div class="disciplina-selector-container">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <div class="disciplina-selector-label">
+                            <i class="fas fa-book me-2 text-primary"></i>Selecionar Disciplina:
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="GET" action="{{ url_for('aluno.presenca', ano=ano_atual, mes=mes_atual) }}" class="d-flex">
+                            <select name="disciplina" class="form-select" onchange="this.form.submit()">
+                                {% for disc in disciplinas_aluno %}
+                                    <option value="{{ disc }}" {% if disc == disciplina_selecionada %}selected{% endif %}>{{ disc }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <small class="text-muted">Disciplina atual: <strong>{{ disciplina_selecionada }}</strong></small>
+                    </div>
+                </div>
+            </div>
+
             <div class="row g-4">
                 
                 <div class="col-lg-6">
@@ -158,19 +205,15 @@
                                 </div>
                             </div>
 
+                            <!-- Controles de navegação do calendário com APENAS O NOME DO MÊS NO CENTRO -->
                             <div class="d-flex justify-content-between p-3 border-bottom" style="background-color: #f7f7f7;">
                                 
                                 <a href="{{ url_for('aluno.presenca', ano=ano_anterior, mes=mes_anterior, disciplina=disciplina_selecionada) }}" class="btn btn-sm btn-outline-secondary">
                                     <i class="fas fa-chevron-left"></i> Anterior
                                 </a>
                                 
-                                <form method="GET" action="{{ url_for('aluno.presenca', ano=ano_atual, mes=mes_atual) }}" class="d-flex align-items-center">
-                                    <select name="disciplina" class="form-select form-select-sm" onchange="this.form.submit()">
-                                        {% for disc in disciplinas_aluno %}
-                                            <option value="{{ disc }}" {% if disc == disciplina_selecionada %}selected{% endif %}>{{ disc }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </form>
+                                <!-- APENAS O NOME DO MÊS NO CENTRO - CORRIGIDO -->
+                                <span class="calendar-month-title">{{ mes_nome }}</span>
                                 
                                 <a href="{{ url_for('aluno.presenca', ano=ano_seguinte, mes=mes_seguinte, disciplina=disciplina_selecionada) }}" class="btn btn-sm btn-outline-secondary">
                                     Próximo <i class="fas fa-chevron-right"></i>
