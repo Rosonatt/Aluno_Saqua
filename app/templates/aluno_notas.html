@@ -77,16 +77,34 @@
                     </div>
                 </div>
 
-                {% set status_color = 'danger' if 'Reprovado' == dados_calculados.status_geral_notas else 'success' %}
-                {% set icon_type = 'times' if 'Reprovado' == dados_calculados.status_geral_notas else 'check' %}
+                {# Calculando a média geral do aluno #}
+                {% set total_medias = dados_calculados.medias_materias.values()|list %}
+                {% set soma_medias = total_medias|map(attribute='media')|sum %}
+                {% set media_geral = (soma_medias / total_medias|length) if total_medias|length > 0 else 0 %}
+                
+                {# Definindo status geral baseado na média geral #}
+                {% set nota_minima = config.NOTA_MINIMA_APROVACAO_MATERIA %}
+                {% if media_geral < nota_minima %}
+                    {% set status_geral_text = 'Baixa' %}
+                    {% set status_color = 'danger' %}
+                    {% set icon_type = 'exclamation-triangle' %}
+                {% elif media_geral >= nota_minima and media_geral < (nota_minima + 2) %}
+                    {% set status_geral_text = 'Média' %}
+                    {% set status_color = 'warning' %}
+                    {% set icon_type = 'minus' %}
+                {% else %}
+                    {% set status_geral_text = 'Alta' %}
+                    {% set status_color = 'success' %}
+                    {% set icon_type = 'chart-line' %}
+                {% endif %}
                 
                 <div class="col-md-6 col-lg-4">
                     <div class="stat-card-item">
                          <div class="icon text-{{ status_color }}">
                              <i class="fas fa-{{ icon_type }}"></i>
                          </div>
-                        <h4 class="mb-0 text-{{ status_color }}">{{ dados_calculados.status_geral_notas }}</h4>
-                        <small class="text-muted">Status Geral </small>
+                        <h4 class="mb-0 text-{{ status_color }}">{{ status_geral_text }}</h4>
+                        <small class="text-muted">Média Geral</small>
                     </div>
                 </div>
                 
@@ -115,16 +133,26 @@
                                 </thead>
                                 <tbody>
                                     {% for disciplina, info in dados_calculados.medias_materias|dictsort %}
+                                    {% set nota_minima = config.NOTA_MINIMA_APROVACAO_MATERIA %}
+                                    {% set media = info.media %}
+                                    
+                                    {# Definindo o status individual baseado na média #}
+                                    {% if media < nota_minima %}
+                                        {% set status_text = 'Média Insuficiente' %}
+                                        {% set cell_color = 'danger' %}
+                                    {% else %}
+                                        {% set status_text = 'Média Suficiente' %}
+                                        {% set cell_color = 'success' %}
+                                    {% endif %}
+                                    
                                     <tr>
                                         <td>{{ disciplina }}</td>
                                         <td>{{ info.nota1 }}</td>
                                         <td>{{ info.nota2 }}</td>
                                         <td>{{ info.media }}</td>
-                                        
-                                        {% set cell_color = 'danger' if 'REPROVADO' in info.status else 'success' %}
-                                        <td class="status-{{ 'reprovado' if 'REPROVADO' in info.status else 'aprovado' }}">
+                                        <td>
                                             <strong class="text-{{ cell_color }}">
-                                                {{ info.status }}
+                                                {{ status_text }}
                                             </strong>
                                         </td>
                                     </tr>
@@ -134,8 +162,8 @@
                         </div>
                         <hr>
                         
-                        <div class="final-status status-{{'reprovado' if 'Reprovado' == dados_calculados.status_geral_notas else 'aprovado'}}">
-                            <strong>Status Geral : {{ dados_calculados.status_geral_notas }}</strong>
+                        <div class="final-status text-{{ status_color }}">
+                            <strong>Média Geral: {{ "%.1f"|format(media_geral) }} ({{ status_geral_text }})</strong>
                         </div>
 
                         {% if dados_calculados.materias_reprovadas %}
