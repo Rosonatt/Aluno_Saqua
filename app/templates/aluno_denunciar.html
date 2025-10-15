@@ -13,6 +13,14 @@
             background-color: var(--light-grey); /* Fundo claro para o grupo de checkboxes */
             padding: 15px;
             border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 1rem;
+        }
+        .form-check-group.required-field {
+            border-left: 4px solid #dc3545;
+        }
+        .form-check-group.valid-field {
+            border-left: 4px solid #198754;
         }
         .form-check-group .question-text {
             margin-bottom: 10px !important;
@@ -24,6 +32,16 @@
         .form-check {
             margin-bottom: 8px;
             padding-left: 2em; /* Mais espaço para o checkbox */
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: none;
+        }
+        .required-label::after {
+            content: " *";
+            color: #dc3545;
         }
     </style>
 </head>
@@ -55,10 +73,12 @@
                     <div class="bg-white p-4 p-md-5 rounded shadow">
                         <h2 id="ND" class="text-center mb-3">Nova Denúncia Anônima</h2>
                         <p class="text-center mb-4">Use este formulário para reportar anonimamente. Sua identidade é protegida. Quanto mais detalhes, melhor poderemos ajudar.</p>
-                        <form method="POST" action="{{ url_for('aluno.denunciar') }}">
+                        <p class="text-center text-danger fw-bold">Todos os campos são obrigatórios.</p>
+                        
+                        <form id="denunciaForm" method="POST" action="{{ url_for('aluno.denunciar') }}">
                             
-                            <div class="mb-4 text-start form-check-group">
-                                <label for="descricao" class="form-label fw-bold fs-5 w-100">
+                            <div class="mb-4 text-start form-check-group required-field" id="descricao-group">
+                                <label for="descricao" class="form-label fw-bold fs-5 w-100 required-label">
                                     <span class="question-text">1. Descreva detalhadamente o que está acontecendo:</span>
                                     <i class="fas fa-info-circle ms-2 text-warning" 
                                         data-bs-toggle="popover" 
@@ -66,7 +86,8 @@
                                         title="O que descrever?"
                                         data-bs-content="Forneça o máximo de detalhes possível: O quê (o ato), Onde (local exato), Quando (data e hora aproximada), Quem (pessoas envolvidas ou testemunhas)."></i>
                                 </label>
-                                <textarea id="descricao" name="descricao" rows="6" class="form-control"></textarea>
+                                <textarea id="descricao" name="descricao" rows="6" class="form-control" required></textarea>
+                                <div class="error-message" id="descricao-error">Por favor, descreva detalhadamente o que está acontecendo.</div>
                             </div>
                             
                             {% set questions = [
@@ -76,24 +97,25 @@
                                 ('local[]', 'Onde o incidente ocorreu ou costuma ocorrer?', ['Sala de Aula', 'Pátio / Quadra / Área Externa', 'Banheiro', 'Corredores / Escadas', 'Online (Redes Sociais, Aplicativos)', 'Fora das dependências da escola']),
                                 ('reportado[]', 'Essa situação já foi comunicada a algum responsável da escola antes?', ['Sim', 'Não', 'Não sei / Não tenho certeza']),
                                 ('vitima_conhecimento[]', 'A vítima é...', ['Eu mesmo(a)', 'Um(a) amigo(a)', 'Um(a) colega de turma que observei', 'Alguém que não conheço (Vi o incidente)']),
-                                ('evidencia[]', '8. Você possui alguma evidência?', ['Sim, mas não anexarei aqui (Será solicitado se necessário).', 'Não, mas há testemunhas.', 'Não, e não há evidências ou testemunhas que eu saiba.']),
+                                ('evidencia[]', ' Você possui alguma evidência?', ['Sim, mas não irei mostrar.', 'Não, mas há testemunhas.', 'Não, e não há evidências ou testemunhas que eu saiba.']),
                                 ('gravidade[]', 'Qual a sua percepção da gravidade do ato?', ['Baixa (Situação desconfortável, mas não ameaçadora)', 'Média (Causa angústia e/ou prejuízo)', 'Alta (Ameaça à integridade física/psicológica ou crime)'])
                             ] %}
                             
                             {% for name, question, options in questions %}
-                            <div class="mb-4 text-start form-check-group">
-                                <p class="fw-bold fs-5 question-text">{{ loop.index + 1 }}. {{ question }}</p>
+                            <div class="mb-4 text-start form-check-group required-field" id="{{ name|replace('[]', '') }}-group">
+                                <p class="fw-bold fs-5 question-text required-label">{{ loop.index + 1 }}. {{ question }}</p>
                                 {% for option in options %}
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="{{ name }}" value="{{ option|lower|replace(' ', '_')|replace('/', '_') }}" id="{{ name }}{{ loop.index }}">
                                     <label class="form-check-label" for="{{ name }}{{ loop.index }}">{{ option }}</label>
                                 </div>
                                 {% endfor %}
+                                <div class="error-message" id="{{ name|replace('[]', '') }}-error">Por favor, selecione pelo menos uma opção.</div>
                             </div>
                             {% endfor %}
                             
-                            <div class="mb-4 text-start form-check-group">
-                                <label for="expectativa" class="form-label fw-bold fs-5 w-100">
+                            <div class="mb-4 text-start form-check-group required-field" id="expectativa-group">
+                                <label for="expectativa" class="form-label fw-bold fs-5 w-100 required-label">
                                     <span class="question-text">10. Qual resultado você espera da escola?</span>
                                     <i class="fas fa-info-circle ms-2 text-warning" 
                                         data-bs-toggle="popover" 
@@ -101,7 +123,8 @@
                                         title="Exemplos de Expectativa"
                                         data-bs-content="Ex: Que a importunação pare imediatamente, que o agressor seja advertido, que a vítima receba apoio psicológico da escola."></i>
                                 </label>
-                                <textarea id="expectativa" name="expectativa" rows="3" class="form-control"></textarea>
+                                <textarea id="expectativa" name="expectativa" rows="3" class="form-control" required></textarea>
+                                <div class="error-message" id="expectativa-error">Por favor, descreva qual resultado você espera da escola.</div>
                             </div>
                             
                             <div class="d-grid gap-2 d-sm-flex mt-4">
@@ -120,6 +143,135 @@
         // Inicializa os Popovers
         const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
         const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+
+        // Validação do formulário
+        document.getElementById('denunciaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let isValid = true;
+
+            // Validação da descrição
+            const descricao = document.getElementById('descricao');
+            const descricaoGroup = document.getElementById('descricao-group');
+            const descricaoError = document.getElementById('descricao-error');
+            
+            if (!descricao.value.trim()) {
+                descricaoGroup.classList.remove('valid-field');
+                descricaoGroup.classList.add('required-field');
+                descricaoError.style.display = 'block';
+                isValid = false;
+            } else {
+                descricaoGroup.classList.remove('required-field');
+                descricaoGroup.classList.add('valid-field');
+                descricaoError.style.display = 'none';
+            }
+
+            // Validação dos grupos de checkbox
+            const checkboxGroups = [
+                'agressor_tipo', 'natureza', 'frequencia', 'local', 
+                'reportado', 'vitima_conhecimento', 'evidencia', 'gravidade'
+            ];
+
+            checkboxGroups.forEach(groupName => {
+                const checkboxes = document.querySelectorAll(`input[name="${groupName}[]"]`);
+                const groupElement = document.getElementById(`${groupName}-group`);
+                const errorElement = document.getElementById(`${groupName}-error`);
+                let atLeastOneChecked = false;
+
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        atLeastOneChecked = true;
+                    }
+                });
+
+                if (!atLeastOneChecked) {
+                    groupElement.classList.remove('valid-field');
+                    groupElement.classList.add('required-field');
+                    errorElement.style.display = 'block';
+                    isValid = false;
+                } else {
+                    groupElement.classList.remove('required-field');
+                    groupElement.classList.add('valid-field');
+                    errorElement.style.display = 'none';
+                }
+            });
+
+            // Validação da expectativa
+            const expectativa = document.getElementById('expectativa');
+            const expectativaGroup = document.getElementById('expectativa-group');
+            const expectativaError = document.getElementById('expectativa-error');
+            
+            if (!expectativa.value.trim()) {
+                expectativaGroup.classList.remove('valid-field');
+                expectativaGroup.classList.add('required-field');
+                expectativaError.style.display = 'block';
+                isValid = false;
+            } else {
+                expectativaGroup.classList.remove('required-field');
+                expectativaGroup.classList.add('valid-field');
+                expectativaError.style.display = 'none';
+            }
+
+            // Se tudo estiver válido, envia o formulário
+            if (isValid) {
+                this.submit();
+            } else {
+                // Rola até o primeiro erro
+                const firstError = document.querySelector('.required-field');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+
+        // Validação em tempo real para campos de texto
+        document.getElementById('descricao').addEventListener('input', function() {
+            const group = document.getElementById('descricao-group');
+            const error = document.getElementById('descricao-error');
+            if (this.value.trim()) {
+                group.classList.remove('required-field');
+                group.classList.add('valid-field');
+                error.style.display = 'none';
+            }
+        });
+
+        document.getElementById('expectativa').addEventListener('input', function() {
+            const group = document.getElementById('expectativa-group');
+            const error = document.getElementById('expectativa-error');
+            if (this.value.trim()) {
+                group.classList.remove('required-field');
+                group.classList.add('valid-field');
+                error.style.display = 'none';
+            }
+        });
+
+        // Validação em tempo real para checkboxes
+        const checkboxGroups = [
+            'agressor_tipo', 'natureza', 'frequencia', 'local', 
+            'reportado', 'vitima_conhecimento', 'evidencia', 'gravidade'
+        ];
+
+        checkboxGroups.forEach(groupName => {
+            const checkboxes = document.querySelectorAll(`input[name="${groupName}[]"]`);
+            const groupElement = document.getElementById(`${groupName}-group`);
+            const errorElement = document.getElementById(`${groupName}-error`);
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    let atLeastOneChecked = false;
+                    checkboxes.forEach(cb => {
+                        if (cb.checked) {
+                            atLeastOneChecked = true;
+                        }
+                    });
+
+                    if (atLeastOneChecked) {
+                        groupElement.classList.remove('required-field');
+                        groupElement.classList.add('valid-field');
+                        errorElement.style.display = 'none';
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

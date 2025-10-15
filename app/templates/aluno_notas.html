@@ -8,6 +8,23 @@
     <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
+        /* Imagem de fundo para toda a página */
+        body {
+            background-image: url("{{ url_for('static', filename='images/fundotest.png') }}");
+            background-color: #028b16;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Conteúdo principal com fundo verde */
+        .dashboard-content {
+             /* Verde do Bootstrap */
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
         
         /* Estilo para os cards de resumo de nota (Herda o estilo do Resumo Anual) */
         .stat-card-item {
@@ -69,7 +86,7 @@
                              <i class="fas fa-{{ icon_type }}"></i>
                          </div>
                         <h4 class="mb-0 text-{{ status_color }}">{{ dados_calculados.status_geral_notas }}</h4>
-                        <small class="text-muted">Status Geral (Notas)</small>
+                        <small class="text-muted">Status Geral </small>
                     </div>
                 </div>
                 

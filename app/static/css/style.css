@@ -37,7 +37,7 @@ main {
 
 /* Mantém o fundo escuro para a página de login e cadastro info */
 body.login, body.register {
-    background-color: #000000;
+    background-color: #028b16;
 }
 
 /* Estilos da Barra de Navegação (Cabeçalho) */

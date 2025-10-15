@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
     <style>
+        main.dashboard-content {
+            background-image: url("{{ url_for('static', filename='images/fundotest.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
         /* Estilo para os cards de resumo de nota (Herda o estilo do Resumo Anual) */
         .stat-card-item {
             background-color: var(--white);
@@ -16,10 +22,18 @@
             padding: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             text-align: center;
+            /* Aplicamos flexbox para gerenciar o alinhamento interno e centralizar */
+            display: flex; 
+            flex-direction: column;
+            justify-content: center;
         }
         .stat-card-item .icon {
             font-size: 2.5rem;
             margin-bottom: 5px;
+        }
+        /* Garantir que todos os cards na linha tenham a mesma altura */
+        .row.g-3 > [class*="col-"] > div {
+            height: 100%;
         }
     </style>
 </head>
@@ -62,23 +76,44 @@
                 </div>
 
                 <div class="col-md-4">
-                    {% set faltas_icon_color = 'danger' if dados_calculados.num_faltas > 0 else 'success' %}
+                    {% set faltas_nao_justificadas = dados_calculados.num_nao_justificadas %}
+                    {% set faltas_risco_color = 'danger' if faltas_nao_justificadas >= MAX_FALTAS_PERMITIDAS else 'warning' if faltas_nao_justificadas > 0 else 'success' %}
                     
                     <div class="stat-card-item">
-                         <div class="icon text-{{ faltas_icon_color }}"><i class="fas fa-calendar-times"></i></div>
-                        <h4 class="mb-0 text-{{ faltas_icon_color }}">{{ dados_calculados.num_faltas }}</h4>
-                        <small class="text-muted">Faltas Totais (Limite: {{ MAX_FALTAS_PERMITIDAS }})</small>
+                         <div class="icon text-{{ faltas_risco_color }}"><i class="fas fa-calendar-times"></i></div>
+                         
+                        <h4 class="mb-1 text-{{ faltas_risco_color }}">{{ dados_calculados.num_faltas }}</h4>
+                        
+                        <p class="mb-0 fw-bold">Total Registrado</p>
+                        <small class="text-success d-block">Justificadas: {{ dados_calculados.num_justificadas }}</small>
+                        <small class="text-danger d-block">Não Justificadas: {{ dados_calculados.num_nao_justificadas }}</small>
+                        
                     </div>
                 </div>
                 
                 <div class="col-md-4">
-                    {% set num_reprovadas = dados_calculados.materias_reprovadas|length %}
-                    {% set pendencia_color = 'danger' if num_reprovadas > 0 else 'success' %}
+                    {% set total_materias = dados_calculados.medias_materias|length %}
+                    {% set materias_aprovadas = total_materias - dados_calculados.materias_reprovadas|length %}
+
+                    {% set s_notas = (materias_aprovadas / (total_materias or 1)) * 100 %}
                     
+                    {% set faltas_nao_justificadas = dados_calculados.num_nao_justificadas %}
+                    {% set max_faltas = MAX_FALTAS_PERMITIDAS or 1 %}
+                    
+                    {% set attendance_ratio = (max_faltas - faltas_nao_justificadas) / max_faltas %}
+                    {% set s_faltas = 0 %}
+                    {% if attendance_ratio > 0 %}
+                        {% set s_faltas = attendance_ratio * 100 %}
+                    {% endif %}
+
+                    {% set aproveitamento_percent = (s_notas + s_faltas) / 2 %}
+                    
+                    {% set percent_color = 'danger' if aproveitamento_percent < 50 else 'warning' if aproveitamento_percent < 75 else 'success' %}
+
                     <div class="stat-card-item">
-                        <div class="icon text-{{ pendencia_color }}"><i class="fas fa-book-open"></i></div>
-                        <h4 class="mb-0 text-{{ pendencia_color }}">{{ num_reprovadas }}</h4>
-                        <small class="text-muted">Disciplinas em Pendência</small>
+                        <div class="icon text-{{ percent_color }}"><i class="fas fa-percent"></i></div>
+                        <h4 class="mb-0 text-{{ percent_color }}">{{ aproveitamento_percent|round(0) }}%</h4>
+                        <small class="text-muted">Aproveitamento do ano letivo</small>
                     </div>
                 </div>
             </div>

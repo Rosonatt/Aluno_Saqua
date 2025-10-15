@@ -9,10 +9,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        main.dashboard-content {
+            background-image: url("{{ url_for('static', filename='images/fundotest.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
         /* Variáveis de Cor do Projeto */
         :root {
-            --primary-green: #2B7A0E;
-            --secondary-green: #1F5C0A;
+            --primary-green: #028b16;
+            --secondary-green: #028b16;
             --white: #FFFFFF;
             --dark-grey: #262626;
             --red-danger: #dc3545;
@@ -103,17 +109,28 @@
                             
                             <hr class="my-3">
                             <h4 class="card-title mt-4">Meta de Reprovação (Total Anual)</h4>
-                            <p class="text-muted">A reprovação é por **Faltas Não Justificadas** (limite: {{ MAX_FALTAS_PERMITIDAS }}).</p>
+                            <p class="text-muted">A reprovação é por Faltas Não Justificadas (limite: {{ MAX_FALTAS_PERMITIDAS }}).</p>
                              
                              {% set faltas_total_nao_justificadas = dados_calculados.num_nao_justificadas %}
                              {% set faltas_restantes = MAX_FALTAS_PERMITIDAS - faltas_total_nao_justificadas %}
                              {% set percent_usado = (faltas_total_nao_justificadas / MAX_FALTAS_PERMITIDAS) * 100 %}
                              
                              <div class="mt-4">
-                                 <div class="d-flex justify-content-between mb-2">
-                                     <strong>Risco: {{ faltas_total_nao_justificadas }}</strong>
-                                     <span class="fw-bold text-{{ 'danger' if percent_usado > 75 else 'warning' if percent_usado > 50 else 'success' }}">{{ faltas_restantes }} Falta(s) Restante(s)</span>
-                                 </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <strong>Risco: {{ faltas_total_nao_justificadas }}</strong>
+                                    <div class="d-flex justify-content-between mb-2">
+                                    
+                                        {% if faltas_restantes >= 0 %}
+                                            <span class="fw-bold text-{{ 'danger' if percent_usado > 75 else 'warning' if percent_usado > 50 else 'success' }}">
+                                                {{ faltas_restantes }} Falta(s) Restante(s)
+                                            </span>
+                                        {% else %}
+                                            <span class="fw-bold text-danger">
+                                                {{ faltas_total_nao_justificadas - MAX_FALTAS_PERMITIDAS }} Falta(s) Excedida(s)
+                                            </span>
+                                            {% endif %}
+                                    </div>
+                                </div>
                                  <div class="progress" style="height: 25px;">
                                      <div class="progress-bar bg-{{ 'danger' if percent_usado > 75 else 'warning' if percent_usado > 50 else 'success' }}" role="progressbar" style="width: {{ percent_usado }}%" aria-valuenow="{{ faltas_total_nao_justificadas }}" aria-valuemin="0" aria-valuemax="{{ MAX_FALTAS_PERMITIDAS }}">
                                          {{ percent_usado|round(0) }}% da Cota

@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
     <style>
+        main.dashboard-content {
+            background-image: url("{{ url_for('static', filename='images/fundotest.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
         /* Estilos específicos para o Dashboard de Denúncias */
         .urgency-alta { background-color: #f8d7da; color: #721c24; font-weight: 700; }
         .urgency-media { background-color: #fff3cd; color: #856404; }
