@@ -27,7 +27,7 @@ psicopedagogo_bp = Blueprint('psicopedagogo', __name__, url_prefix='/psicopedago
 # --- ROTAS PRINCIPAIS ---
 @main_bp.route('/')
 def index():
-    return render_template('index.html')
+    return "<h1>Teste de Rota Funcionou!</h1>"
 
 @main_bp.route('/informacoes-cadastro')
 def informacoes_cadastro():
